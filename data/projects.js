@@ -1,0 +1,51 @@
+export const projects = [
+  {
+    icon: '🦴',
+    category: 'Ingénierie biomédicale',
+    name: 'Prothèse discale intervertébrale',
+    desc: "Conception d'un implant discal L4-L5 (noyau HDPE, coque inox) à partir d'une modélisation biomécanique 3D du rachis lombaire. Simulation de charge via éléments finis pour valider la fiabilité structurelle.",
+    stack: ['ANSYS', 'FEA', 'Imagerie 3D'],
+  },
+  {
+    icon: '🎭',
+    category: 'Scénographie IA',
+    name: 'Visualisation scénographique automatisée',
+    desc: "Outil combinant Blender et IA générative pour proposer des placements scénographiques cohérents dans des espaces de vente, avec rendu photoréaliste adapté à l'identité de marque.",
+    stack: ['Blender', 'Python', 'ComfyUI', 'SDXL'],
+  },
+  {
+    icon: '🔗',
+    category: 'Design Fiction',
+    name: 'Protocole HCT',
+    desc: 'Exploration prospective d\'un futur 2030 avec un système de certification blockchain "Human Cognitive Traces" authentifiant l\'effort créatif humain via signaux biométriques et comportementaux.',
+    stack: ['Blockchain', 'UX Research', 'Prototype'],
+  },
+  {
+    icon: '🎸',
+    category: 'Design Thinking',
+    name: 'Pédale de guitare IA',
+    desc: "Conception d'une pédale de guitare pour musicien home studio. Génération d'une signal chain multi-effets à partir d'un input en langage naturel, chargée instantanément sur le hardware.",
+    stack: ['ESP32', 'Daisy Seed', 'LLM API', 'Three.js'],
+  },
+  {
+    icon: '🌍',
+    category: 'Creative Tech',
+    name: 'Cartographie prédictive environnementale',
+    desc: "Agent IA scrutant les actualités environnementales, géolocalisant chaque événement et croisant les données météo pour prédire sa propagation à 24h, rendue visuellement sur un globe 3D.",
+    stack: ['n8n', 'Groq', 'TouchDesigner', 'API météo'],
+  },
+  {
+    icon: '🎥',
+    category: 'Installation immersive',
+    name: 'Projection interactive 360°',
+    desc: "Développement d'une installation interactive temps réel pour salle de projection 360°. Détection de silhouette par caméras LiDAR, génération procédurale de contenu réactif à la distance visiteur-écran.",
+    stack: ['TouchDesigner', 'LiDAR', 'Mapping', 'Capteurs'],
+  },
+  {
+    icon: '🎮',
+    category: 'Creative Agency',
+    name: 'Activation culturelle par le jeu vidéo',
+    desc: "Conception d'une campagne d'activation culturelle via un mod PvE coopératif. Élaboration d'une stratégie de médiation in-situ pour créer une expérience interactive pour les visiteurs.",
+    stack: ['Game Design', 'Médiation culturelle', 'Stratégie'],
+  },
+];

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mehdi Belhous — Designer 3D & Ingénieur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo">MB.</div>
+  <ul class="nav-links">
+    <li><a href="#about" data-hoverable>À propos</a></li>
+    <li><a href="#experience" data-hoverable>Parcours</a></li>
+    <li><a href="#projects" data-hoverable>Projets</a></li>
+    <li><a href="#skills" data-hoverable>Compétences</a></li>
+    <li><a href="#contact" data-hoverable>Contact</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-tag">Designer 3D & Ingénieur</div>
+  <h1>Mehdi<br>Belhous</h1>
+  <p class="hero-subtitle">
+    Ingénieur mécanicien reconverti en designer 3D. Je conçois des expériences visuelles où précision technique et narration esthétique convergent.
+  </p>
+  <a href="#projects" class="hero-cta" data-hoverable>
+    Voir les projets
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+  <div class="hero-scroll-hint">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    scroll
+  </div>
+</section>
+
+<section id="about">
+  <div class="reveal">
+    <div class="section-label">À propos</div>
+    <h2 class="section-title">Deux mondes, une vision</h2>
+  </div>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>
+        Diplômé ingénieur en construction mécanique de l'École Polytechnique de Constantine, je me suis orienté vers le design digital et les technologies créatives à l'ESD Paris.
+      </p>
+      <p>
+        Depuis plus de deux ans, je travaille en freelance et en alternance comme designer 3D et motion designer, en concevant des produits, des animations promotionnelles et des expériences interactives pour des marques B2B et B2C.
+      </p>
+      <p>
+        Mon parcours hybride me permet de penser un objet depuis le cahier des charges jusqu'au rendu final, en passant par la simulation mécanique et l'animation.
+      </p>
+    </div>
+    <div class="about-stats reveal">
+      <div class="stat-card" data-hoverable>
+        <div class="stat-value">2+</div>
+        <div class="stat-label">Années en freelance 3D & motion</div>
+      </div>
+      <div class="stat-card" data-hoverable>
+        <div class="stat-value">2</div>
+        <div class="stat-label">Diplômes — ingénieur & design digital</div>
+      </div>
+      <div class="stat-card" data-hoverable>
+        <div class="stat-value">15+</div>
+        <div class="stat-label">Outils maîtrisés</div>
+      </div>
+      <div class="stat-card" data-hoverable>
+        <div class="stat-value">∞</div>
+        <div class="stat-label">Curiosité intacte</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="reveal">
+    <div class="section-label">Parcours</div>
+    <h2 class="section-title">Expérience professionnelle</h2>
+  </div>
+  <div class="timeline reveal" id="timeline"></div>
+</section>
+
+<section id="projects">
+  <div class="reveal">
+    <div class="section-label">Projets</div>
+    <h2 class="section-title">Travaux sélectionnés</h2>
+  </div>
+  <div class="projects-grid" id="projects-grid"></div>
+</section>
+
+<section id="skills">
+  <div class="reveal">
+    <div class="section-label">Compétences</div>
+    <h2 class="section-title">Outils & savoir-faire</h2>
+  </div>
+  <div class="skills-container reveal" id="skills-container"></div>
+</section>
+
+<section id="contact">
+  <div class="reveal">
+    <div class="section-label">Contact</div>
+    <h2 class="section-title" style="text-align:center;">Construisons ensemble</h2>
+    <div class="contact-inner">
+      <p>
+        Disponible pour un poste en CDI en Île-de-France, dans la modélisation 3D, l'animation produit, le design industriel ou les technologies créatives.
+      </p>
+      <div class="contact-links">
+        <a href="mailto:mehdi.belhous11@gmail.com" class="contact-link" data-hoverable>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>
+          Email
+        </a>
+        <a href="tel:+33748529599" class="contact-link" data-hoverable>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.86 19.86 0 0 1 3.09 5.18 2 2 0 0 1 5.08 3h3a2 2 0 0 1 2 1.72c.13.81.36 1.61.68 2.38a2 2 0 0 1-.45 2.11L8.09 11.43a16 16 0 0 0 6.48 6.48l2.22-2.22a2 2 0 0 1 2.11-.45c.77.32 1.57.55 2.38.68A2 2 0 0 1 22 16.92z"/></svg>
+          Téléphone
+        </a>
+        <a href="https://behance.net" class="contact-link" data-hoverable>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M8 12h4"/></svg>
+          Behance
+        </a>
+        <a href="https://youtube.com" class="contact-link" data-hoverable>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.6C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+          YouTube
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Mehdi Belhous — 2025
+</footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

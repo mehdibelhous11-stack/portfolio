@@ -1,0 +1,8 @@
+@media (max-width: 768px) {
+  nav { padding: 1rem; }
+  .nav-links { display: none; }
+  section { padding: 4rem 1.25rem; }
+  .about-grid { grid-template-columns: 1fr; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2.5rem; }
+}
