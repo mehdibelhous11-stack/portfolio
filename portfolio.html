@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mehdi Belhous — Designer 3D & Ingénieur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #12121a;
+  --bg-card-hover: #1a1a28;
+  --text: #e8e6e1;
+  --text-dim: #8a8a9a;
+  --accent: #4a6cf7;
+  --accent-glow: rgba(74, 108, 247, 0.15);
+  --accent-warm: #f0a050;
+  --border: rgba(255,255,255,0.06);
+  --radius: 12px;
+  --font: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'Space Mono', monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f2f1ed;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f8f8fa;
+    --text: #1a1a2e;
+    --text-dim: #6a6a7a;
+    --border: rgba(0,0,0,0.08);
+    --accent-glow: rgba(74, 108, 247, 0.08);
+  }
+}
+
+:root:not([data-theme="light"]) {
+  /* dark is default */
+}
+:root[data-theme="dark"] {
+  --bg: #0a0a0f;
+  --bg-card: #12121a;
+  --bg-card-hover: #1a1a28;
+  --text: #e8e6e1;
+  --text-dim: #8a8a9a;
+  --border: rgba(255,255,255,0.06);
+  --accent-glow: rgba(74, 108, 247, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom cursor */
+.cursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+}
+.cursor.hovering {
+  transform: translate(-50%, -50%) scale(2.5);
+  background: var(--accent);
+  opacity: 0.3;
+}
+.cursor-dot {
+  position: fixed;
+  width: 5px;
+  height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+}
+
+@media (hover: none) {
+  .cursor, .cursor-dot { display: none; }
+  body { cursor: auto; }
+}
+
+/* Canvas background */
+#bg-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* Nav */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(20px);
+  background: rgba(10,10,15,0.6);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: color 0.3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links a:hover::after { width: 100%; }
+
+/* Sections */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 7rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Hero */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 6rem;
+}
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.hero-tag::before {
+  content: '';
+  display: block;
+  width: 2rem;
+  height: 1px;
+  background: var(--accent);
+}
+.hero h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+.hero-subtitle {
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  color: var(--text-dim);
+  max-width: 580px;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 2rem;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  cursor: none;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(74, 108, 247, 0.35);
+}
+.hero-cta svg { transition: transform 0.3s; }
+.hero-cta:hover svg { transform: translateX(4px); }
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  font-family: var(--mono);
+  animation: float 2.5s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+/* Section headings */
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.section-label::before {
+  content: '';
+  width: 1.5rem;
+  height: 1px;
+  background: var(--accent);
+}
+.section-title {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 3rem;
+}
+
+/* About */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+.about-text p {
+  color: var(--text-dim);
+  margin-bottom: 1.25rem;
+  max-width: 520px;
+}
+.about-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.stat-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+}
+.stat-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* Experience timeline */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 3rem;
+  padding-left: 2rem;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -2.35rem;
+  top: 0.5rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+.timeline-date {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+.timeline-role {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.timeline-company {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
+}
+.timeline-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.tag {
+  font-size: 0.7rem;
+  font-family: var(--mono);
+  padding: 0.3rem 0.7rem;
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-radius: 100px;
+  border: 1px solid rgba(74,108,247,0.2);
+}
+
+/* Projects */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  transition: transform 0.35s ease, border-color 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+.project-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(74,108,247,0.3);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+}
+.project-card:hover::before {
+  transform: scaleX(1);
+}
+.project-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  font-size: 1.3rem;
+}
+.project-category {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+.project-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.project-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+.project-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.stack-tag {
+  font-size: 0.65rem;
+  font-family: var(--mono);
+  padding: 0.2rem 0.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+}
+
+/* Skills */
+.skills-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+.skill-group {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  transition: border-color 0.3s;
+}
+.skill-group:hover {
+  border-color: var(--accent);
+}
+.skill-group-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.skill-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.skill-list li {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.skill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Contact */
+.contact-inner {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.contact-inner p {
+  color: var(--text-dim);
+  margin-bottom: 2.5rem;
+  font-size: 1.05rem;
+}
+.contact-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: border-color 0.3s, background 0.3s, transform 0.2s;
+}
+.contact-link:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 3rem 2rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+}
+
+/* Reveal animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  nav { padding: 1rem; }
+  .nav-links { display: none; }
+  section { padding: 4rem 1.25rem; }
+  .about-grid { grid-template-columns: 1fr; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo">MB.</div>
+  <ul class="nav-links">
+    <li><a href="#about" data-hoverable>À propos</a></li>
+    <li><a href="#experience" data-hoverable>Parcours</a></li>
+    <li><a href="#projects" data-hoverable>Projets</a></li>
+    <li><a href="#skills" data-hoverable>Compétences</a></li>
+    <li><a href="#contact" data-hoverable>Contact</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-tag">Designer 3D & Ingénieur</div>
+  <h1>Mehdi<br>Belhous</h1>
+  <p class="hero-subtitle">
+    Ingénieur mécanicien reconverti en designer 3D. Je conçois des expériences visuelles où précision technique et narration esthétique convergent.
+  </p>
+  <a href="#projects" class="hero-cta" data-hoverable>
+    Voir les projets
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+  <div class="hero-scroll-hint">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    scroll
+  </div>
+</section>
+
+<section id="about">
+  <div class="reveal">
+    <div class="section-label">À propos</div>
+    <h2 class="section-title">Deux mondes, une vision</h2>
+  </div>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>
+        Diplômé ingénieur en construction mécanique de l'École Polytechnique de Constantine, je me suis orienté vers le design digital et les technologies créatives à l'ESD Paris.
+      </p>
+      <p>
+        Depuis plus de deux ans, je travaille en freelance et en alternance comme designer 3D et motion designer, en concevant des produits, des animations promotionnelles et des expériences interactives pour des marques B2B et B2C.
+      </p>
+      <p>
+        Mon parcours hybride me permet de penser un objet depuis le cahier des charges jusqu'au rendu final, en passant par la simulation mécanique et l'animation.
+      </p>
+    </div>
+    <div class="about-stats reveal">
+      <div class="stat-card" data-hoverable>
+        <div class="stat-value">2+</div>
+        <div class="stat-label">Années en freelance 3D & motion</div>
+      </div>
+      <div class="stat-card" data-hoverable>
+        <div class="stat-value">2</div>
+        <div class="stat-label">Diplômes — ingénieur & design digital</div>
+      </div>
+      <div class="stat-card" data-hoverable>
+        <div class="stat-value">15+</div>
+        <div class="stat-label">Outils maîtrisés</div>
+      </div>
+      <div class="stat-card" data-hoverable>
+        <div class="stat-value">∞</div>
+        <div class="stat-label">Curiosité intacte</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="reveal">
+    <div class="section-label">Parcours</div>
+    <h2 class="section-title">Expérience professionnelle</h2>
+  </div>
+  <div class="timeline reveal">
+    <div class="timeline-item">
+      <div class="timeline-date">2024 — 2025</div>
+      <div class="timeline-role">Designer 3D & Web</div>
+      <div class="timeline-company">ExpertCN — Alternance</div>
+      <div class="timeline-tags">
+        <span class="tag">Modélisation 3D</span>
+        <span class="tag">Motion design</span>
+        <span class="tag">Branding</span>
+        <span class="tag">Three.js</span>
+        <span class="tag">Webflow</span>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2022 — 2025</div>
+      <div class="timeline-role">Designer 3D & Motion / UI-UX</div>
+      <div class="timeline-company">Freelance</div>
+      <div class="timeline-tags">
+        <span class="tag">Blender</span>
+        <span class="tag">Product design</span>
+        <span class="tag">Prototypage UI</span>
+        <span class="tag">Figma</span>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2022 — 2023</div>
+      <div class="timeline-role">Ingénieur fabrication mécanique</div>
+      <div class="timeline-company">ETSH</div>
+      <div class="timeline-tags">
+        <span class="tag">CNC</span>
+        <span class="tag">Cahiers des charges</span>
+        <span class="tag">Contrôle qualité</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="reveal">
+    <div class="section-label">Projets</div>
+    <h2 class="section-title">Travaux sélectionnés</h2>
+  </div>
+  <div class="projects-grid">
+
+    <div class="project-card reveal" data-hoverable>
+      <div class="project-icon">🦴</div>
+      <div class="project-category">Ingénierie biomédicale</div>
+      <div class="project-name">Prothèse discale intervertébrale</div>
+      <div class="project-desc">
+        Conception d'un implant discal L4-L5 (noyau HDPE, coque inox) à partir d'une modélisation biomécanique 3D du rachis lombaire. Simulation de charge via éléments finis pour valider la fiabilité structurelle.
+      </div>
+      <div class="project-stack">
+        <span class="stack-tag">ANSYS</span>
+        <span class="stack-tag">FEA</span>
+        <span class="stack-tag">Imagerie 3D</span>
+      </div>
+    </div>
+
+    <div class="project-card reveal" data-hoverable>
+      <div class="project-icon">🎭</div>
+      <div class="project-category">Scénographie IA</div>
+      <div class="project-name">Visualisation scénographique automatisée</div>
+      <div class="project-desc">
+        Outil combinant Blender et IA générative pour proposer des placements scénographiques cohérents dans des espaces de vente, avec rendu photoréaliste adapté à l'identité de marque.
+      </div>
+      <div class="project-stack">
+        <span class="stack-tag">Blender</span>
+        <span class="stack-tag">Python</span>
+        <span class="stack-tag">ComfyUI</span>
+        <span class="stack-tag">SDXL</span>
+      </div>
+    </div>
+
+    <div class="project-card reveal" data-hoverable>
+      <div class="project-icon">🔗</div>
+      <div class="project-category">Design Fiction</div>
+      <div class="project-name">Protocole HCT</div>
+      <div class="project-desc">
+        Exploration prospective d'un futur 2030 avec un système de certification blockchain "Human Cognitive Traces" authentifiant l'effort créatif humain via signaux biométriques et comportementaux.
+      </div>
+      <div class="project-stack">
+        <span class="stack-tag">Blockchain</span>
+        <span class="stack-tag">UX Research</span>
+        <span class="stack-tag">Prototype</span>
+      </div>
+    </div>
+
+    <div class="project-card reveal" data-hoverable>
+      <div class="project-icon">🎸</div>
+      <div class="project-category">Design Thinking</div>
+      <div class="project-name">Pédale de guitare IA</div>
+      <div class="project-desc">
+        Conception d'une pédale de guitare pour musicien home studio. Génération d'une signal chain multi-effets à partir d'un input en langage naturel, chargée instantanément sur le hardware.
+      </div>
+      <div class="project-stack">
+        <span class="stack-tag">ESP32</span>
+        <span class="stack-tag">Daisy Seed</span>
+        <span class="stack-tag">LLM API</span>
+        <span class="stack-tag">Three.js</span>
+      </div>
+    </div>
+
+    <div class="project-card reveal" data-hoverable>
+      <div class="project-icon">🌍</div>
+      <div class="project-category">Creative Tech</div>
+      <div class="project-name">Cartographie prédictive environnementale</div>
+      <div class="project-desc">
+        Agent IA scrutant les actualités environnementales, géolocalisant chaque événement et croisant les données météo pour prédire sa propagation à 24h, rendue visuellement sur un globe 3D.
+      </div>
+      <div class="project-stack">
+        <span class="stack-tag">n8n</span>
+        <span class="stack-tag">Groq</span>
+        <span class="stack-tag">TouchDesigner</span>
+        <span class="stack-tag">API météo</span>
+      </div>
+    </div>
+
+    <div class="project-card reveal" data-hoverable>
+      <div class="project-icon">🎥</div>
+      <div class="project-category">Installation immersive</div>
+      <div class="project-name">Projection interactive 360°</div>
+      <div class="project-desc">
+        Développement d'une installation interactive temps réel pour salle de projection 360°. Détection de silhouette par caméras LiDAR, génération procédurale de contenu réactif à la distance visiteur-écran.
+      </div>
+      <div class="project-stack">
+        <span class="stack-tag">TouchDesigner</span>
+        <span class="stack-tag">LiDAR</span>
+        <span class="stack-tag">Mapping</span>
+        <span class="stack-tag">Capteurs</span>
+      </div>
+    </div>
+
+    <div class="project-card reveal" data-hoverable>
+      <div class="project-icon">🎮</div>
+      <div class="project-category">Creative Agency</div>
+      <div class="project-name">Activation culturelle par le jeu vidéo</div>
+      <div class="project-desc">
+        Conception d'une campagne d'activation culturelle via un mod PvE coopératif. Élaboration d'une stratégie de médiation in-situ pour créer une expérience interactive pour les visiteurs.
+      </div>
+      <div class="project-stack">
+        <span class="stack-tag">Game Design</span>
+        <span class="stack-tag">Médiation culturelle</span>
+        <span class="stack-tag">Stratégie</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="skills">
+  <div class="reveal">
+    <div class="section-label">Compétences</div>
+    <h2 class="section-title">Outils & savoir-faire</h2>
+  </div>
+  <div class="skills-container reveal">
+    <div class="skill-group" data-hoverable>
+      <div class="skill-group-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        CAD & Ingénierie
+      </div>
+      <ul class="skill-list">
+        <li><span class="skill-dot"></span>Solidworks</li>
+        <li><span class="skill-dot"></span>Rhino3D</li>
+        <li><span class="skill-dot"></span>Plasticity</li>
+        <li><span class="skill-dot"></span>ANSYS</li>
+        <li><span class="skill-dot"></span>Impression 3D / Code G</li>
+      </ul>
+    </div>
+    <div class="skill-group" data-hoverable>
+      <div class="skill-group-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        3D & Motion
+      </div>
+      <ul class="skill-list">
+        <li><span class="skill-dot"></span>Blender</li>
+        <li><span class="skill-dot"></span>After Effects</li>
+        <li><span class="skill-dot"></span>Premiere Pro</li>
+        <li><span class="skill-dot"></span>DaVinci Resolve</li>
+        <li><span class="skill-dot"></span>TouchDesigner</li>
+      </ul>
+    </div>
+    <div class="skill-group" data-hoverable>
+      <div class="skill-group-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        Web & Interactif
+      </div>
+      <ul class="skill-list">
+        <li><span class="skill-dot"></span>Three.js</li>
+        <li><span class="skill-dot"></span>HTML / CSS</li>
+        <li><span class="skill-dot"></span>Webflow</li>
+        <li><span class="skill-dot"></span>Figma</li>
+        <li><span class="skill-dot"></span>GitHub</li>
+      </ul>
+    </div>
+    <div class="skill-group" data-hoverable>
+      <div class="skill-group-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Automatisation & IA
+      </div>
+      <ul class="skill-list">
+        <li><span class="skill-dot"></span>n8n</li>
+        <li><span class="skill-dot"></span>ComfyUI / Stable Diffusion</li>
+        <li><span class="skill-dot"></span>CursorAI</li>
+        <li><span class="skill-dot"></span>Notion</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="reveal">
+    <div class="section-label">Contact</div>
+    <h2 class="section-title" style="text-align:center;">Construisons ensemble</h2>
+    <div class="contact-inner">
+      <p>
+        Disponible pour un poste en CDI en Île-de-France, dans la modélisation 3D, l'animation produit, le design industriel ou les technologies créatives.
+      </p>
+      <div class="contact-links">
+        <a href="mailto:mehdi.belhous11@gmail.com" class="contact-link" data-hoverable>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>
+          Email
+        </a>
+        <a href="tel:+33748529599" class="contact-link" data-hoverable>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.86 19.86 0 0 1 3.09 5.18 2 2 0 0 1 5.08 3h3a2 2 0 0 1 2 1.72c.13.81.36 1.61.68 2.38a2 2 0 0 1-.45 2.11L8.09 11.43a16 16 0 0 0 6.48 6.48l2.22-2.22a2 2 0 0 1 2.11-.45c.77.32 1.57.55 2.38.68A2 2 0 0 1 22 16.92z"/></svg>
+          Téléphone
+        </a>
+        <a href="https://behance.net" class="contact-link" data-hoverable>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M8 12h4"/></svg>
+          Behance
+        </a>
+        <a href="https://youtube.com" class="contact-link" data-hoverable>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.6C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+          YouTube
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Mehdi Belhous — 2025
+</footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursorDot');
+let mouseX = 0, mouseY = 0;
+let cursorX = 0, cursorY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorDot.style.left = mouseX + 'px';
+  cursorDot.style.top = mouseY + 'px';
+});
+
+function animateCursor() {
+  cursorX += (mouseX - cursorX) * 0.15;
+  cursorY += (mouseY - cursorY) * 0.15;
+  cursor.style.left = cursorX + 'px';
+  cursor.style.top = cursorY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.querySelectorAll('[data-hoverable], a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+});
+
+// Background canvas — animated grid
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let width, height;
+
+function resize() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const dots = [];
+const SPACING = 50;
+const MOUSE_RADIUS = 150;
+
+function initDots() {
+  dots.length = 0;
+  for (let x = 0; x < width; x += SPACING) {
+    for (let y = 0; y < height; y += SPACING) {
+      dots.push({ x, y, baseX: x, baseY: y });
+    }
+  }
+}
+initDots();
+window.addEventListener('resize', initDots);
+
+let canvasMouseX = 0, canvasMouseY = 0;
+document.addEventListener('mousemove', e => {
+  canvasMouseX = e.clientX;
+  canvasMouseY = e.clientY;
+});
+
+function drawDots() {
+  ctx.clearRect(0, 0, width, height);
+  for (const dot of dots) {
+    const dx = canvasMouseX - dot.baseX;
+    const dy = canvasMouseY - dot.baseY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const maxDist = MOUSE_RADIUS;
+
+    let size = 1;
+    let alpha = 0.12;
+
+    if (dist < maxDist) {
+      const force = (1 - dist / maxDist);
+      size = 1 + force * 3;
+      alpha = 0.12 + force * 0.5;
+    }
+
+    ctx.beginPath();
+    ctx.arc(dot.baseX, dot.baseY, size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(74, 108, 247, ${alpha})`;
+    ctx.fill();
+  }
+  requestAnimationFrame(drawDots);
+}
+drawDots();
+
+// Scroll reveal
+const revealElements = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => {
+        entry.target.classList.add('visible');
+      }, i * 100);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+revealElements.forEach(el => observer.observe(el));
+
+// Nav active state on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY + 200;
+  sections.forEach(section => {
+    const top = section.offsetTop;
+    const h = section.offsetHeight;
+    const id = section.getAttribute('id');
+    if (scrollY >= top && scrollY < top + h) {
+      navLinks.forEach(a => {
+        a.style.color = '';
+        if (a.getAttribute('href') === '#' + id) {
+          a.style.color = 'var(--text)';
+        }
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>
