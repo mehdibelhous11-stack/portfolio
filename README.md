@@ -1,0 +1,142 @@
+# Belhous — Portfolio
+
+Next.js 16 (App Router) · React 19 · Three.js · Lenis. Both routes prerender as static pages and deploy to Vercel with no configuration.
+
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm run build
+npm start
+```
+
+> **Building locally on this machine?** See [Local environment](#local-environment) — the shell inherits variables that break `next build` with `generate is not a function`.
+
+---
+
+## Art direction
+
+Inspired by [Post Minimal](https://www.postminimal.agency/). What was taken from it, and what was not:
+
+| Taken | How it shows up here |
+|---|---|
+| The position leads, the name follows | No name in the hero. It appears in the bar next to the mark and in the footer byline. |
+| One idea per screen | The hero says one sentence; the argument behind it gets its own screen (*Approche*), the mantra another. Four projects get a screen and a visual each; three more share a short list. |
+| The chapter counter | Each section's number rides the bottom-left of the viewport while you read it — a sticky heading in a left rail, so it never sits on the content. |
+| Monochrome | No accent colour. The only chromatic event is the metal in the 3D scene reflecting its environment. |
+| Stacked mantra, formula triad | `Technicité. Clarté. Optimisation. Innovation.` and three relations — *Forme : Contrainte × Matière*, *Surface : Matière × Lumière*, *Image : Lumière × Contrainte* — which is the actual pipeline, stated as maths. |
+| A text version | [`/text`](app/text/page.js) carries every detail in full. The main page can stay short *because* recruiters have somewhere to read everything. |
+
+Not taken: their copy, their accent colour, the sound toggle and the timer. The closing line, **"Deux triangles. Une arête commune."**, describes the mark — so it is his, not borrowed.
+
+## The mark
+
+A parallelogram cut along its short diagonal into two triangles that share an edge: the left one hollow (two bars, the structure as it is drawn before it is computed), the right one solid (the part as it is rendered). Calculation on one side, image on the other, one object holding both — the site's argument, in one shape. An engineer reads a plate with a lightening pocket; a 3D artist reads a quad triangulated, one face in wireframe.
+
+It is a construction, not a drawing: four corners and one bar width in [`lib/mark.js`](lib/mark.js), from which the pocket is computed. It renders four ways: inline SVG ([`components/Mark.jsx`](components/Mark.jsx)), the extruded plate in the hero ([`lib/markGeometry.js`](lib/markGeometry.js)), and every raster icon plus the OG card ([`scripts/generate-assets.mjs`](scripts/generate-assets.mjs)). Change a corner and every surface follows. The bar width (8 on a 100 field) was tested against a 16 px raster: at 7 the bars break up, at 9 the pocket reads as a centred Δ rather than the hollow half.
+
+## System
+
+All decisions live in [`styles/tokens.css`](styles/tokens.css).
+
+- **Colour** — two neutrals and four greys. `--ink-4` is for rules and marks **only, never text**: it measures 1.7:1 on the background. `--ink-3` (3.0:1) is the floor for anything read.
+- **Type** — Space Grotesk, one family for everything. Labels are the same face, smaller and in `--ink-3`: sentence case, no tracking, no second family. Loaded through `next/font/google`, which downloads it at build time and serves it from the site, so there is no request to Google at runtime and no layout shift. Few sizes, far apart: each screen carries one idea, set large, and everything around it small.
+- **Structure** — radius 0 everywhere; the mark is straight edges only and the interface keeps that promise. On screens wider than 1000 px, sections are a two-column grid: an 11rem rail for the section number, the content beside it.
+- **Motion** — two easing curves, four durations.
+
+Light mode is an inversion of the same system, not a second design.
+
+## Architecture
+
+```
+app/layout.js         fonts, metadata, pre-paint theme script, JSON-LD
+app/page.js           server component: composes the page
+app/text/page.js      the full site as text — no client components
+components/Runtime    the ONE client island: rAF loop, boot, cursor, scene
+components/Scene      three.js, dynamically imported with ssr:false
+components/Nav        bar + index overlay + theme toggle
+components/Sections   intro, approche, principes, travaux, parcours, contact, closing
+lib/content.js        every word on the site
+lib/scroll.js         shared rAF bus + Lenis; per-frame state lives outside React
+```
+
+Two decisions worth knowing:
+
+- **Per-frame values never touch React state.** Scroll position, pointer and the 3D pose change 60 times a second; routing them through a provider would re-render the tree on every frame. They live in plain objects in `lib/scroll.js`, read by one `requestAnimationFrame` loop that Lenis, the cursor, the nav and the scene all subscribe to.
+- **three.js is a separate chunk** fetched after the page is readable. The scene is an enhancement, never a dependency: no WebGL means the chunk's work is skipped and a CSS fallback mark stays on screen.
+
+## The 3D scene
+
+The mark extruded into a machined plate with a chamfer, the pocket cut clean through so turning it shows the inner walls catching light; a flat outline of the same contour hanging behind it, always square to camera; the true edges drawn over the solid; a derivative-based grid floor. Reflections come from `RoomEnvironment`, a procedural room — zero bytes of HDR.
+
+The plate is sized as a **share of viewport height** (47% tall on wide screens, 22% on narrow) so it holds the same presence on a phone and an ultrawide. Scrolling sways it rather than spinning it — a thin plate seen edge-on is a grey bar, not the mark — and within the first viewport height it retreats to the right edge at 10% opacity: everything below is type, and none of it should be read against a moving highlight.
+
+| Condition | Behaviour |
+|---|---|
+| Coarse pointer / ≤ 4 cores | DPR capped at 1.5, no antialias, no chamfer pass |
+| `prefers-reduced-motion` | one static frame, native scroll, no custom cursor |
+| Tab hidden | render skipped |
+| No WebGL | fallback mark, chunk work skipped |
+
+## Deploying to Vercel
+
+```bash
+npx vercel --prod
+```
+
+Or import the repo at [vercel.com/new](https://vercel.com/new) — the Next.js preset is detected automatically and **no environment variables are needed**. Security headers are set in [`next.config.mjs`](next.config.mjs).
+
+**Custom domain:** add it under Project → Settings → Domains, change `site.url` in [`lib/content.js`](lib/content.js) (it drives `metadataBase`, canonical URLs and the sitemap), then run `npm run assets`.
+
+## Editing content
+
+Everything is in [`lib/content.js`](lib/content.js). Projects carry two descriptions: `line` (one sentence, main page) and `long` (full detail, `/text`). Keep `line` to one idea — if it needs a second clause, it belongs in `long`. French typography: put a no-break space (` `) before `:` and inside `« »`, or the punctuation can wrap onto a line of its own.
+
+### Project visuals
+
+`featured: true` gives a project a full screen with a visual; the others go in the short list below. Until a project has an image, its slot shows a drawing-sheet placeholder (plate number and title block), which is designed to stand on its own. To add a render:
+
+1. Put the file in `public/work/` — a 16:10 still (JPG or WebP, ~2400 px wide), optionally an `.mp4` loop.
+2. Set the fields on the project:
+
+```js
+image: '/work/prothese.jpg',   // served through next/image, resized per device
+video: '/work/prothese.mp4',   // optional; plays muted, only while on screen, never with reduced motion
+href:  'https://www.behance.net/…', // optional "Voir le projet" link
+alt:   'Coupe de l’implant sous charge', // optional; defaults to "name — kicker"
+```
+
+```bash
+npm run assets   # regenerate icons, OG card, manifest, robots, sitemap
+```
+
+Output is committed to `public/` so deployments never need `sharp` or Chrome. The OG card is rendered in the installed Chrome so its text is set in Space Grotesk; without Chrome or network it falls back to `sharp` and system type.
+
+## Local environment
+
+The shell this project was built in inherits the environment of an unrelated Next.js standalone server, including `NODE_ENV=production` and `__NEXT_PRIVATE_STANDALONE_CONFIG`. When that last variable is set, Next skips `next.config.mjs` and uses the other app's serialised config — which has no functions, hence:
+
+```
+TypeError: generate is not a function
+```
+
+It does not affect Vercel, and probably not a normal terminal. If you see it:
+
+```bash
+env -u __NEXT_PRIVATE_STANDALONE_CONFIG -u NODE_ENV npx next build
+```
+
+`NODE_ENV=production` also makes a plain `npm install` silently skip devDependencies; use `npm install --include=dev`.
+
+### Visual checks
+
+`scripts/shoot.mjs` and `scripts/check.mjs` drive your installed Chrome over CDP to capture every section at desktop and mobile widths and exercise theme, index overlay, reduced motion, keyboard access and `/text`. Run them against `npm start`:
+
+```bash
+node scripts/shoot.mjs ./shots http://localhost:3000/
+node scripts/check.mjs ./shots http://localhost:3000/
+```
+
+## Known gaps
+
+- **Project imagery.** The four featured slots show placeholders until renders are added (see [Project visuals](#project-visuals)).
+- **Behance and YouTube** point at bare domains in `lib/content.js`.

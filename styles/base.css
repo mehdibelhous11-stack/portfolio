@@ -1,0 +1,119 @@
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: auto; }
+
+body {
+  min-height: 100svh;
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--t-body);
+  font-weight: 400;
+  line-height: var(--lh-body);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  transition: background var(--d-2) var(--ease-io), color var(--d-2) var(--ease-io);
+}
+
+/* Lenis owns the scroll position; the document must not. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+img, svg, video, canvas { display: block; max-width: 100%; }
+svg { fill: none; }
+
+a { color: inherit; text-decoration: none; }
+button { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+ul, ol { list-style: none; padding: 0; }
+
+h1, h2, h3 {
+  font-weight: 500;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-heading);
+  text-wrap: balance;
+}
+
+p { text-wrap: pretty; }
+
+::selection { background: var(--ink); color: var(--void); }
+
+/* Focus is never removed. The site hides the system cursor for pointer users,
+   so the keyboard ring is the only affordance some people get. */
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+:focus:not(:focus-visible) { outline: none; }
+
+.skip {
+  position: fixed;
+  top: var(--s-3);
+  left: var(--s-3);
+  z-index: 200;
+  padding: var(--s-3) var(--s-4);
+  background: var(--ink);
+  color: var(--void);
+  font-size: var(--t-label);
+  font-weight: 500;
+  transform: translateY(-200%);
+  transition: transform var(--d-2) var(--ease);
+}
+.skip:focus { transform: translateY(0); }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@supports (scrollbar-width: thin) {
+  html { scrollbar-width: thin; scrollbar-color: var(--rule-2) transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- Shared atoms -------------------------------------------------------- */
+.shell {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Same face as the text, only smaller and quieter. */
+.label {
+  font-size: var(--t-label);
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.005em;
+  color: var(--ink-3);
+}
+
+.mark { width: 1em; height: 1em; overflow: visible; }
+.mark__glyph { fill: currentColor; fill-rule: evenodd; }
+
+.rule { height: var(--hairline); background: var(--rule); border: 0; }
+
+/* Reveal — each element carries its own --delay so the stagger is authored,
+   not derived from observer batch order. */
+.cue {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity var(--d-4) var(--ease), transform var(--d-4) var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.cue[data-in] { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cue { opacity: 1; transform: none; }
+}

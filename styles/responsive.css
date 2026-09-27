@@ -1,0 +1,74 @@
+/* =============================================================================
+   RESPONSIVE — the grid collapses in two steps, nothing is ever hidden.
+   Loaded last so these rules win without !important.
+   ========================================================================== */
+
+/* Wide: each section heading takes the rail and rides the bottom of the
+   viewport through its section — a chapter counter that never sits on the
+   content, because the content never enters the rail. */
+@media (min-width: 1001px) {
+  .section {
+    display: grid;
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    column-gap: var(--s-6);
+  }
+  .section__head {
+    position: sticky;
+    bottom: var(--s-6);
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-2);
+    margin: 0;
+  }
+  .section__num {
+    font-size: var(--t-num);
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    color: var(--ink);
+  }
+  .section__body { grid-column: 2; grid-row: 1; }
+
+  /* One idea, one screen. */
+  .section--screen { min-height: 100svh; }
+  .section--screen .section__body { align-self: center; }
+}
+
+@media (max-width: 1000px) {
+  .approach { margin-right: 0; }
+
+  .feature,
+  .feature:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: var(--s-5); }
+  .feature:nth-child(even) .feature__text { order: 0; }
+  .feature + .feature { margin-top: var(--s-10); }
+
+  .others__row { grid-template-columns: 2.5rem minmax(0, 12rem) minmax(0, 1fr); }
+  .others__kicker { display: none; }
+
+  .track__row { grid-template-columns: 7rem minmax(0, 1fr) minmax(0, 10rem); }
+}
+
+@media (max-width: 720px) {
+  /* The solid takes the top of the screen, the statement the bottom. */
+  .intro__body { margin-block: auto var(--s-8); }
+
+  .statement { max-width: none; }
+  .approach { margin-top: var(--s-7); }
+
+  .triad { grid-template-columns: minmax(0, 1fr); gap: var(--s-5); margin-top: var(--s-8); }
+
+  .sheet__block div:last-child { display: none; }
+
+  .others__row { grid-template-columns: 2.5rem minmax(0, 1fr); row-gap: var(--s-1); }
+  .others__line { grid-column: 2; }
+
+  .track__row { grid-template-columns: minmax(0, 1fr); gap: var(--s-1); padding-block: var(--s-4); }
+  .track__at { justify-self: start; text-align: left; }
+
+  .contact__links { gap: var(--s-5) var(--s-7); margin-top: var(--s-7); }
+
+  .footer__inner { flex-direction: column; align-items: flex-start; gap: var(--s-4); }
+  .footer__byline { margin-right: 0; }
+}
