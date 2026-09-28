@@ -23,7 +23,7 @@ Inspired by [Post Minimal](https://www.postminimal.agency/). What was taken from
 | One idea per screen | The hero says one sentence; the argument behind it gets its own screen (*Approche*), the mantra another. Four projects get a screen and a visual each; three more share a short list. |
 | The chapter counter | Each section's number rides the bottom-left of the viewport while you read it — a sticky heading in a left rail, so it never sits on the content. |
 | Monochrome | No accent colour. The only chromatic event is the metal in the 3D scene reflecting its environment. |
-| Stacked mantra, formula triad | `Technicité. Clarté. Optimisation. Innovation.` and three relations — *Forme : Contrainte × Matière*, *Surface : Matière × Lumière*, *Image : Lumière × Contrainte* — which is the actual pipeline, stated as maths. |
+| Stacked mantra, formula triad | Four words stacked one per line, and three relations set as formulas — a name, then the two terms that make it — the pipeline stated as maths. |
 | A text version | [`/text`](app/text/page.js) carries every detail in full. The main page can stay short *because* recruiters have somewhere to read everything. |
 
 Not taken: their copy, their accent colour, the sound toggle and the timer. The closing line, **"Deux triangles. Une arête commune."**, describes the mark — so it is his, not borrowed.
@@ -41,7 +41,7 @@ All decisions live in [`styles/tokens.css`](styles/tokens.css).
 - **Colour** — two neutrals and four greys. `--ink-4` is for rules and marks **only, never text**: it measures 1.7:1 on the background. `--ink-3` (3.0:1) is the floor for anything read.
 - **Type** — Space Grotesk, one family for everything. Labels are the same face, smaller and in `--ink-3`: sentence case, no tracking, no second family. Loaded through `next/font/google`, which downloads it at build time and serves it from the site, so there is no request to Google at runtime and no layout shift. Few sizes, far apart: each screen carries one idea, set large, and everything around it small.
 - **Structure** — radius 0 everywhere; the mark is straight edges only and the interface keeps that promise. On screens wider than 1000 px, sections are a two-column grid: an 11rem rail for the section number, the content beside it.
-- **Motion** — two easing curves, four durations.
+- **Motion** — two easing curves, four durations. Statements write themselves on as they scroll into view ([`components/WriteOn.jsx`](components/WriteOn.jsx)): characters appear in order behind a caret that holds at punctuation, blocks in a section type one after another, and the last one leaves the caret blinking a moment. Every character's timing is set at render, so once a block is switched on the effect is pure CSS. Screen readers get each sentence whole; with reduced motion or without script the text is simply there.
 
 Light mode is an inversion of the same system, not a second design.
 
@@ -76,7 +76,7 @@ The mark is built the way a part is built in CAD, scrubbed by scroll ([`lib/sequ
 | Profil | The rectangle closes around it in two strokes from its foot; the closed profile is shaded, as CAD shades one that is ready to extrude. |
 | Inclinaison | The rectangle leans. A plumb line and a live readout count the angle to 22,4°; the dashed diagonal swings until it lands on the triangle's edge. |
 | Extrusion | The 3D plate takes over head-on, exactly on the sketch, then extrudes and turns; the sketch drops back behind it and the floor appears. |
-| Annotation | *Forme*, *Fonction*, *Clarté* land on the solid half, the bar and the shared edge — pinned to the moving part, not to the screen. |
+| Annotation | *Forme*, *Fonction*, *Précision* land on the solid half, the bar and the shared edge — pinned to the moving part, not to the screen. |
 
 **The triangle never changes.** The pocket already has its final shape, so the frame is what adapts: the upright rectangle on the same base leans until its left edge runs parallel to the triangle and its diagonal falls on the triangle's edge. That is the thread the rest of the page can pick up.
 
@@ -115,7 +115,9 @@ Or import the repo at [vercel.com/new](https://vercel.com/new) — the Next.js p
 
 ## Editing content
 
-Everything is in [`lib/content.js`](lib/content.js). Projects carry two descriptions: `line` (one sentence, main page) and `long` (full detail, `/text`). Keep `line` to one idea — if it needs a second clause, it belongs in `long`. French typography: put a no-break space (` `) before `:` and inside `« »`, or the punctuation can wrap onto a line of its own.
+Everything is in [`lib/content.js`](lib/content.js). The statement, the argument and the principles (`lead`, `approach`, `mantra`, `triad`) are placeholder lorem ipsum for now, the same length and shape as the final text; `site.role` stays real because the page title, the JSON-LD and the OG card read it. **Don't run `npm run assets` until the final wording is in** — the OG card is set from `lead.punch`.
+
+Projects carry two descriptions: `line` (one sentence, main page) and `long` (full detail, `/text`). Keep `line` to one idea — if it needs a second clause, it belongs in `long`. French typography: put a no-break space (` `) before `:` and inside `« »`, or the punctuation can wrap onto a line of its own.
 
 ### Project visuals
 

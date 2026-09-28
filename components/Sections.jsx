@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useCue } from './Runtime';
 import Sequence from './Sequence';
+import WriteOn from './WriteOn';
 import {
   approach, closing, contact, lead, mantra, projects,
   sections, site, studies, tools, track, triad,
@@ -71,14 +72,18 @@ function Intro() {
   return (
     <section className="intro shell" aria-label="Introduction">
       <div className="intro__body">
-        <p className="intro__punch cue">
-          {lead.punch.map((line) => (
-            <span key={line}>{line}</span>
+        <WriteOn className="intro__punch">
+          {lead.punch.map((line, i) => (
+            // The space is typed and read, and collapses at the start of the line.
+            <span className="intro__line" key={line}>
+              {i ? ' ' : ''}
+              {line}
+            </span>
           ))}
-        </p>
-        <p className="intro__role cue" style={{ '--delay': '160ms' }}>
-          {site.role}
-        </p>
+        </WriteOn>
+        <WriteOn className="intro__role" linger>
+          {lead.tagline}
+        </WriteOn>
       </div>
 
       <div className="intro__foot">
@@ -97,12 +102,14 @@ function Intro() {
 function Approche() {
   return (
     <Section id="approche" screen>
-      <p className="statement cue">
+      <WriteOn className="statement">
         <span className="statement__muted">{lead.problem}</span> {lead.belief}
-      </p>
-      <div className="approach cue" style={{ '--delay': '140ms' }}>
-        {approach.map((p) => (
-          <p key={p}>{p}</p>
+      </WriteOn>
+      <div className="approach">
+        {approach.map((p, i) => (
+          <WriteOn key={p} linger={i === approach.length - 1}>
+            {p}
+          </WriteOn>
         ))}
       </div>
     </Section>
@@ -113,22 +120,22 @@ function Approche() {
 function Principes() {
   return (
     <Section id="principes" screen>
-      <ul className="mantra cue">
+      <ul className="mantra">
         {mantra.map((word) => (
-          <li key={word}>{word}</li>
+          <WriteOn as="li" key={word}>
+            {word}
+          </WriteOn>
         ))}
       </ul>
 
-      <div className="triad cue" style={{ '--delay': '140ms' }}>
-        {triad.map((row) => (
-          <p className="triad__row" key={row.name}>
-            <span className="triad__name">{row.name}</span>
+      <div className="triad">
+        {triad.map((row, i) => (
+          <WriteOn className="triad__row" key={row.name} linger={i === triad.length - 1}>
+            <span className="triad__name">{row.name}</span>{' '}
             <span className="triad__terms">
-              {row.a}
-              <em>×</em>
-              {row.b}
+              {row.a} <em>×</em> {row.b}
             </span>
-          </p>
+          </WriteOn>
         ))}
       </div>
     </Section>

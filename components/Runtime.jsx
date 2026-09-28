@@ -165,30 +165,66 @@ function Cursor() {
   );
 }
 
-/** Scroll-linked reveal. Exported for sections that opt in. */
+/**
+ * Scroll-linked reveal, for `.cue` (fade up) and `.wo` (write-on, see
+ * components/WriteOn.jsx). Exported for sections that opt in.
+ *
+ * Write-on blocks type in order within their section: one that comes into
+ * view while the block before it is still writing waits its turn. Once a
+ * block is written it is marked done, which drops the per-character delays —
+ * otherwise a theme switch would re-colour the text one character at a time.
+ */
+const WRITE_GAP = 160;
+
 export function useCue(ref) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const items = el.querySelectorAll('.cue');
+    const items = el.querySelectorAll('.cue, .wo');
     if (!items.length) return;
 
     if (reducedMotion()) {
-      items.forEach((n) => n.setAttribute('data-in', ''));
+      items.forEach((n) => {
+        n.setAttribute('data-in', '');
+        if (n.classList.contains('wo')) n.setAttribute('data-done', '');
+      });
       return;
     }
+
+    const ends = new Map(); // section → when its last scheduled block finishes
+    const timers = new Set();
+    const show = (n) => {
+      if (n.classList.contains('wo')) {
+        const chain = n.closest('section') ?? el;
+        const now = performance.now();
+        const wait = Math.max(0, (ends.get(chain) ?? 0) - now);
+        const length = Number(n.dataset.wo) || 0;
+        n.style.setProperty('--start', `${Math.round(wait)}ms`);
+        ends.set(chain, now + wait + length + WRITE_GAP);
+        const id = setTimeout(() => {
+          timers.delete(id);
+          n.setAttribute('data-done', '');
+        }, wait + length + 100);
+        timers.add(id);
+      }
+      n.setAttribute('data-in', '');
+    };
+
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          entry.target.setAttribute('data-in', '');
+          show(entry.target);
           io.unobserve(entry.target);
         }
       },
       { threshold: 0.1, rootMargin: '0px 0px -6% 0px' },
     );
     items.forEach((n) => io.observe(n));
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      timers.forEach(clearTimeout);
+    };
   }, [ref]);
 }
 

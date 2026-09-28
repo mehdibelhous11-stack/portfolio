@@ -177,6 +177,39 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844, isMob
   await page.close();
 }
 
+/* ---- 3c. Write-on ---------------------------------------------------------
+   Scrolled through, every block must end fully written, and the copy screen
+   readers get must be the same text as the one on screen. */
+{
+  const page = await open({ width: 1440, height: 900 });
+  for (const sel of ['.intro', '#approche', '#principes']) {
+    await page.evaluate((s) => document.querySelector(s).scrollIntoView(), sel);
+    await settle(1200);
+  }
+  // Blocks queue within a section, so the last one can take a few seconds.
+  await page
+    .waitForFunction(() => [...document.querySelectorAll('.wo')].every((b) => b.hasAttribute('data-done')), { timeout: 20000 })
+    .catch(() => {});
+  await settle(300);
+  const blocks = await page.evaluate(() =>
+    [...document.querySelectorAll('.wo')].map((b) => {
+      const chars = [...b.querySelectorAll('.wo__c')];
+      return {
+        done: b.hasAttribute('data-done'),
+        hidden: chars.filter((c) => getComputedStyle(c).color === 'rgba(0, 0, 0, 0)').length,
+        same: b.querySelector('.sr-only').textContent === chars.map((c) => c.textContent).join(''),
+      };
+    }),
+  );
+  results.push({
+    test: 'write-on',
+    blocks: blocks.length,
+    allWritten: blocks.every((b) => b.done && b.hidden === 0),
+    readerCopyMatches: blocks.every((b) => b.same),
+  });
+  await page.close();
+}
+
 /* ---- 4. Keyboard + a11y --------------------------------------------------- */
 {
   const page = await open({ width: 1440, height: 900 });

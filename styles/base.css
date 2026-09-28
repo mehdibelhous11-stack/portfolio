@@ -117,3 +117,46 @@ p { text-wrap: pretty; }
 @media (prefers-reduced-motion: reduce) {
   .cue { opacity: 1; transform: none; }
 }
+
+/* Write-on — components/WriteOn.jsx gives every character its time (--t)
+   and hold (--d, else the block's --step), in ms; useCue adds the block's
+   wait (--start) and switches it on. Characters appear by colour, not
+   opacity, so the caret — drawn on the character itself — is not faded
+   with it. Hidden only once script has run: without it, the text is there. */
+html[data-js] .wo__c { color: transparent; }
+.wo__c { position: relative; }
+.wo__c::after {
+  content: '';
+  position: absolute;
+  top: 0.12em;
+  bottom: 0.1em;
+  left: 100%;
+  width: max(2px, 0.055em);
+  background: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+}
+.wo[data-in] .wo__c {
+  color: inherit;
+  transition: color 60ms linear calc(var(--start, 0ms) + var(--t) * 1ms);
+}
+.wo[data-in] .wo__c::after {
+  animation: wo-caret calc(var(--d, var(--step)) * 1ms) linear calc(var(--start, 0ms) + var(--t) * 1ms);
+}
+.wo[data-in] .wo__c[data-end]::after {
+  animation-name: wo-blink;
+  animation-timing-function: steps(1, end);
+}
+/* Written: colour changes (the theme toggle) no longer wait their turn. */
+.wo[data-done] .wo__c { transition: color var(--d-2) var(--ease-io); }
+
+@keyframes wo-caret { from, to { opacity: 1; } }
+@keyframes wo-blink {
+  0%, 30%, 60% { opacity: 1; }
+  15%, 45%, 75%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-js] .wo__c { color: inherit; }
+  .wo__c::after { display: none; }
+}
