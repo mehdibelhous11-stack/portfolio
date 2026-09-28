@@ -51,31 +51,57 @@ Light mode is an inversion of the same system, not a second design.
 app/layout.js         fonts, metadata, pre-paint theme script, JSON-LD
 app/page.js           server component: composes the page
 app/text/page.js      the full site as text — no client components
-components/Runtime    the ONE client island: rAF loop, boot, cursor, scene
+components/Runtime    rAF loop, boot, cursor, scene
 components/Scene      three.js, dynamically imported with ssr:false
+components/Sequence   the opening: pinned track, sketch, callouts
 components/Nav        bar + index overlay + theme toggle
-components/Sections   intro, approche, principes, travaux, parcours, contact, closing
+components/Sections   opening, intro, approche, principes, travaux, parcours, contact, closing
 lib/content.js        every word on the site
+lib/sequence.js       the opening's timeline, framing and shared state
 lib/scroll.js         shared rAF bus + Lenis; per-frame state lives outside React
 ```
 
 Two decisions worth knowing:
 
-- **Per-frame values never touch React state.** Scroll position, pointer and the 3D pose change 60 times a second; routing them through a provider would re-render the tree on every frame. They live in plain objects in `lib/scroll.js`, read by one `requestAnimationFrame` loop that Lenis, the cursor, the nav and the scene all subscribe to.
-- **three.js is a separate chunk** fetched after the page is readable. The scene is an enhancement, never a dependency: no WebGL means the chunk's work is skipped and a CSS fallback mark stays on screen.
+- **Per-frame values never touch React state.** Scroll position, pointer and the 3D pose change 60 times a second; routing them through a provider would re-render the tree on every frame. They live in plain objects (`lib/scroll.js`, `lib/sequence.js`), read by one `requestAnimationFrame` loop that Lenis, the cursor, the nav, the opening and the scene all subscribe to. Subscribers take an `order`: progress first, then the 3D pose, then everything pinned to it — so the callouts always read this frame's pose, never the last one.
+- **three.js is a separate chunk** fetched after the page is readable. The scene is an enhancement, never a dependency: with no WebGL the opening finishes in 2D (the sketch fills in to the flat mark) and the callouts pin to that instead.
+
+## The opening
+
+The mark is built the way a part is built in CAD, scrubbed by scroll ([`lib/sequence.js`](lib/sequence.js)):
+
+| Beat | What happens |
+|---|---|
+| Esquisse | The triangle draws itself, apex first, as the boot overlay lifts. |
+| Profil | The rectangle closes around it in two strokes from its foot; the closed profile is shaded, as CAD shades one that is ready to extrude. |
+| Inclinaison | The rectangle leans. A plumb line and a live readout count the angle to 22,4°; the dashed diagonal swings until it lands on the triangle's edge. |
+| Extrusion | The 3D plate takes over head-on, exactly on the sketch, then extrudes and turns; the sketch drops back behind it and the floor appears. |
+| Annotation | *Forme*, *Fonction*, *Clarté* land on the solid half, the bar and the shared edge — pinned to the moving part, not to the screen. |
+
+**The triangle never changes.** The pocket already has its final shape, so the frame is what adapts: the upright rectangle on the same base leans until its left edge runs parallel to the triangle and its diagonal falls on the triangle's edge. That is the thread the rest of the page can pick up.
+
+**Layers.** The track is `SEQ_SCREENS + 1` screens tall with two pinned layers: the sketch paints *under* the WebGL canvas, so the solid covers the drawing it comes out of; the callouts paint *over* it. The track itself sets no z-index, or both layers would be trapped on one side of the canvas. After the last beat the stage unpins and the plate settles beside the statement, then retreats to a trace at the right edge.
+
+**Tuning.** Beat lengths (in screens of scroll) are `BEATS` in `lib/sequence.js`; where the words sit around the mark is `NOTE_LAYOUT` (field units, one layout for wide screens and one for phones, clamped so a word never leaves the screen); the words themselves are `sequence` in `lib/content.js`.
+
+| Condition | The opening |
+|---|---|
+| `prefers-reduced-motion` | One screen, already finished: solid, callouts, no scrubbing. The picture scrolls away with the page as one still image. |
+| No WebGL | Sketch as usual; the profile fills in to the flat mark and the callouts pin to it. |
+| No JavaScript | One screen: the flat mark, the three words under it. |
 
 ## The 3D scene
 
-The mark extruded into a machined plate with a chamfer, the pocket cut clean through so turning it shows the inner walls catching light; a flat outline of the same contour hanging behind it, always square to camera; the true edges drawn over the solid; a derivative-based grid floor. Reflections come from `RoomEnvironment`, a procedural room — zero bytes of HDR.
+The mark extruded into a machined plate with a chamfer, the pocket cut clean through so turning it shows the inner walls catching light; the sketch it came from, carried into 3D as a flat outline that drops back behind it and stays square to camera; the true edges drawn over the solid; a derivative-based grid floor. Reflections come from `RoomEnvironment`, a procedural room — zero bytes of HDR.
 
-The plate is sized as a **share of viewport height** (47% tall on wide screens, 22% on narrow) so it holds the same presence on a phone and an ultrawide. Scrolling sways it rather than spinning it — a thin plate seen edge-on is a grey bar, not the mark — and within the first viewport height it retreats to the right edge at 10% opacity: everything below is type, and none of it should be read against a moving highlight.
+In the opening the plate is placed from the sketch's own framing, so at the handoff it sits exactly where the drawing was. Beside the statement it is sized as a **share of viewport height** (47% tall on wide screens, 22% on narrow) so it holds the same presence on a phone and an ultrawide. It never turns past ~60° — a thin plate seen edge-on is a grey bar, not the mark — and one screen past the statement it retreats to the right edge at 10% opacity: everything below is type, and none of it should be read against a moving highlight.
 
 | Condition | Behaviour |
 |---|---|
 | Coarse pointer / ≤ 4 cores | DPR capped at 1.5, no antialias, no chamfer pass |
-| `prefers-reduced-motion` | one static frame, native scroll, no custom cursor |
+| `prefers-reduced-motion` | one still frame, redrawn only when the page moves; native scroll, no custom cursor |
 | Tab hidden | render skipped |
-| No WebGL | fallback mark, chunk work skipped |
+| No WebGL | chunk work skipped; the opening finishes in 2D |
 
 ## Deploying to Vercel
 
@@ -129,7 +155,7 @@ env -u __NEXT_PRIVATE_STANDALONE_CONFIG -u NODE_ENV npx next build
 
 ### Visual checks
 
-`scripts/shoot.mjs` and `scripts/check.mjs` drive your installed Chrome over CDP to capture every section at desktop and mobile widths and exercise theme, index overlay, reduced motion, keyboard access and `/text`. Run them against `npm start`:
+`scripts/shoot.mjs` and `scripts/check.mjs` drive your installed Chrome over CDP. `shoot` captures every beat of the opening and every section at desktop and mobile widths; `check` exercises theme, index overlay, reduced motion, keyboard access and `/text`, and scrubs the opening to assert that the callouts land on screen, the words fit on a phone and the plate retreats to its trace. Run them against `npm start`:
 
 ```bash
 node scripts/shoot.mjs ./shots http://localhost:3000/

@@ -7,6 +7,7 @@
  */
 import puppeteer from 'puppeteer-core';
 import { mkdir } from 'node:fs/promises';
+import { RANGE } from '../lib/sequence.js';
 
 const OUT = process.argv[2];
 const URL = process.argv[3] || 'http://localhost:4173/';
@@ -96,9 +97,83 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844, isMob
   results.push({
     test: 'reduced motion',
     cuesAllVisible: await page.evaluate(() => [...document.querySelectorAll('.cue')].every((n) => getComputedStyle(n).opacity === '1')),
+    // The opening collapses to one finished screen.
+    openingScreens: await page.evaluate(() => document.getElementById('top').offsetHeight / innerHeight),
+    calloutsShown: await page.evaluate(() => [...document.querySelectorAll('.callout')].every((n) => getComputedStyle(n).opacity === '1')),
     canvasOpacity: await page.evaluate(() => document.querySelector('canvas.scene')?.style.opacity),
     customCursorOff: await page.evaluate(() => !document.documentElement.dataset.cursor),
   });
+  await page.close();
+}
+
+/* ---- 3b. The opening, scrubbed --------------------------------------------- */
+{
+  const page = await open({ width: 1440, height: 900 });
+  const scrub = async (t) => {
+    await page.evaluate((t) => {
+      const el = document.getElementById('top');
+      scrollTo({ top: el.offsetTop + t * (el.offsetHeight - innerHeight), behavior: 'instant' });
+    }, t);
+    await settle(2600);
+  };
+  const state = () =>
+    page.evaluate(() => {
+      const opacity = (n) => +(n.style.opacity || getComputedStyle(n).opacity);
+      const box = (n) => n.getBoundingClientRect();
+      return {
+        canvas: +(document.querySelector('canvas.scene')?.style.opacity ?? 0),
+        triangle: !!document.querySelector('[data-part="tri"]').getAttribute('d'),
+        sketch: opacity(document.querySelector('[data-part="sketch"]')),
+        callouts: [...document.querySelectorAll('.callout')].map(opacity),
+        leaders: [...document.querySelectorAll('[data-part="leader"]')].every((n) => (n.getAttribute('d') || '').length > 10),
+        // Every anchor on screen, and every word inside the viewport.
+        anchorsOnScreen: [...document.querySelectorAll('[data-part="anchor"]')].every((n) => {
+          const r = box(n);
+          return r.left > 0 && r.right < innerWidth && r.top > 0 && r.bottom < innerHeight;
+        }),
+        wordsInside: [...document.querySelectorAll('.callout')].every((n) => {
+          const r = box(n);
+          return r.left >= 0 && r.right <= innerWidth;
+        }),
+        step: document.querySelector('[data-part="stepName"]').textContent,
+      };
+    });
+
+  // The triangle draws itself only once the boot overlay lifts, and software
+  // GL can hold the boot well past its cap.
+  await page
+    .waitForFunction(() => document.getElementById('boot')?.hasAttribute('data-done') ?? true, { timeout: 15000 })
+    .catch(() => {});
+  await settle(2000);
+  const start = await state();
+  await scrub(RANGE.annotate[1]);
+  const notes = await state();
+  await page.screenshot({ path: `${OUT}/opening-notes.png` });
+  // Past the pinned track and a screen and a half beyond: a trace at the edge.
+  await page.evaluate(() => {
+    const el = document.getElementById('top');
+    scrollTo({ top: el.offsetTop + el.offsetHeight + innerHeight * 0.7, behavior: 'instant' });
+  });
+  await settle(2600);
+  const beyond = await state();
+  await scrub(0);
+  const back = await state();
+  results.push({
+    test: 'opening',
+    start: { canvas: start.canvas, triangle: start.triangle, step: start.step },
+    notes: { canvas: notes.canvas, sketch: notes.sketch, callouts: notes.callouts, leaders: notes.leaders, anchorsOnScreen: notes.anchorsOnScreen, wordsInside: notes.wordsInside, step: notes.step },
+    beyond: { canvas: beyond.canvas },
+    backToStart: { canvas: back.canvas, sketch: back.sketch, step: back.step },
+  });
+
+  // Same on a phone: every word has to fit.
+  await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+  await page.reload({ waitUntil: 'load' });
+  await settle(3200);
+  await scrub(RANGE.annotate[1]);
+  const phone = await state();
+  await page.screenshot({ path: `${OUT}/opening-notes-mobile.png` });
+  results.push({ test: 'opening mobile', callouts: phone.callouts, anchorsOnScreen: phone.anchorsOnScreen, wordsInside: phone.wordsInside });
   await page.close();
 }
 

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Mark from '@/components/Mark';
 import {
   approach, byline, contact, lead, mantra, markNote, projects,
-  site, studies, tools, track, triad,
+  sequence, site, studies, tools, track, triad,
 } from '@/lib/content';
 
 export const metadata = {
@@ -34,6 +34,9 @@ export default function TextVersion() {
       </p>
 
       <h2>Position</h2>
+      <p>
+        <strong>{sequence.callouts.join('. ')}.</strong>
+      </p>
       <p>{lead.problem}</p>
       <p>{lead.belief}</p>
       <p>

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useCue } from './Runtime';
+import Sequence from './Sequence';
 import {
   approach, closing, contact, lead, mantra, projects,
   sections, site, studies, tools, track, triad,
@@ -26,7 +27,7 @@ export default function Sections() {
 
   return (
     <main id="main" ref={root}>
-      <span id="top" />
+      <Sequence />
       <Intro />
       <Approche />
       <Principes />
@@ -64,14 +65,12 @@ function Section({ id, screen = false, children }) {
 }
 
 /* ---- Intro ---------------------------------------------------------------
-   The name is not here. One statement, what he does, where he is. */
+   The name is not here. One statement, what he does, where he is — the
+   solid from the opening comes to rest beside it. */
 function Intro() {
   return (
     <section className="intro shell" aria-label="Introduction">
       <div className="intro__body">
-        <h1 className="sr-only">
-          {site.name} — {site.role}
-        </h1>
         <p className="intro__punch cue">
           {lead.punch.map((line) => (
             <span key={line}>{line}</span>

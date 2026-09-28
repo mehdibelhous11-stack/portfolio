@@ -58,8 +58,9 @@ export const viewport = {
 };
 
 /* Runs before first paint so there is never a flash of the wrong palette.
-   Deliberately blocking and deliberately tiny. */
-const THEME_SCRIPT = `try{var t=localStorage.getItem('mb-theme');document.documentElement.dataset.theme=t==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}`;
+   Deliberately blocking and deliberately tiny. `data-js` tells the CSS the
+   opening will be driven; without it the opening is one still screen. */
+const THEME_SCRIPT = `document.documentElement.dataset.js='';try{var t=localStorage.getItem('mb-theme');document.documentElement.dataset.theme=t==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}`;
 
 const personLd = {
   '@context': 'https://schema.org',
@@ -79,9 +80,14 @@ const personLd = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="fr" data-theme="dark" className={grotesk.variable}>
+    // THEME_SCRIPT rewrites attributes on <html> before hydration, on purpose.
+    <html lang="fr" data-theme="dark" className={grotesk.variable} suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        {/* Without script the boot overlay would never lift. */}
+        <noscript>
+          <style>{'.boot{display:none}'}</style>
+        </noscript>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}

@@ -52,18 +52,117 @@
   pointer-events: none;
   opacity: 0;
 }
-.scene-fallback {
-  position: fixed;
+
+/* ---- Opening -------------------------------------------------------------
+   A tall track and two pinned layers. The stage (the sketch) paints under
+   the canvas, so the solid covers the drawing it comes out of; the notes
+   paint over it, so the callouts stay on top of the part they describe.
+   The track sets no z-index, or both layers would be trapped on one side
+   of the canvas. Everything inside is drawn by components/Sequence.jsx. */
+.seq {
+  position: relative;
+  height: calc((var(--seq-screens) + 1) * 100svh);
+}
+.seq__stage,
+.seq__notes {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: clip;
+  pointer-events: none;
+}
+.seq__notes { z-index: var(--z-content); margin-top: -100svh; }
+
+.seq__sketch,
+.seq__leaders {
+  position: absolute;
   inset: 0;
-  z-index: var(--z-canvas);
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.seq__line {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+  stroke-linecap: square;
+}
+.seq__guide { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 5; }
+/* No fill-opacity here: the script sets it as an attribute, which any CSS
+   declaration would override. */
+.seq__profile { fill: var(--ink); }
+.seq__pt, .seq__anchor { fill: var(--ink); }
+.seq__leader { stroke: var(--ink-2); stroke-width: 1; }
+
+.seq__angle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: var(--t-label);
+  line-height: 1;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  opacity: 0;
+}
+.seq__hint,
+.seq__step {
+  position: absolute;
+  bottom: var(--s-6);
+  opacity: 0;
+}
+.seq__hint { left: 50%; translate: -50% 0; }
+/* On the same line as the section rail below it. */
+.seq__step {
+  left: max(var(--gutter), (100% - var(--max)) / 2 + var(--gutter));
+  display: flex;
+  gap: var(--s-3);
+}
+.seq__step span:first-child { color: var(--ink); font-variant-numeric: tabular-nums; }
+.seq__still { display: none; }
+
+.seq__callouts { position: absolute; inset: 0; }
+.callout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  white-space: nowrap;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.callout__num { font-size: var(--t-label); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.callout__word {
+  font-size: var(--t-lead);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+
+/* Without script: one screen, the finished mark, the words under it. */
+html:not([data-js]) .seq { height: 100svh; }
+html:not([data-js]) .seq__still {
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
-  color: var(--void-2);
-  font-size: min(38vh, 30vw);
-  pointer-events: none;
-  transition: opacity var(--d-3) var(--ease);
+  font-size: min(34vh, 56vw);
 }
-.scene-fallback[hidden] { display: grid; opacity: 0; }
+html:not([data-js]) .seq__callouts {
+  top: auto;
+  bottom: var(--s-9);
+  display: flex;
+  justify-content: center;
+  gap: var(--s-6);
+}
+html:not([data-js]) .callout { position: static; opacity: 1; }
+
+/* Reduced motion: the finished state, scrolled past like any content. */
+@media (prefers-reduced-motion: reduce) {
+  .seq { height: 100svh; }
+}
 
 /* ---- Cursor -------------------------------------------------------------- */
 .cursor, .cursor__dot { display: none; }

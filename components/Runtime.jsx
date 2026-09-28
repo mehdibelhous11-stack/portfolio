@@ -15,9 +15,6 @@ const Scene = dynamic(() => import('./Scene'), { ssr: false });
  * four, so the page ships a single hydration boundary.
  */
 export default function Runtime() {
-  const [booted, setBooted] = useState(false);
-  const [sceneReady, setSceneReady] = useState(false);
-
   useEffect(() => {
     let teardown = () => {};
     startScroll().then((fn) => {
@@ -28,8 +25,8 @@ export default function Runtime() {
 
   return (
     <>
-      <Boot sceneReady={sceneReady} onDone={() => setBooted(true)} />
-      <Scene onReady={() => setSceneReady(true)} active={booted} />
+      <Boot />
+      <Scene />
       <Cursor />
     </>
   );
@@ -41,7 +38,7 @@ export default function Runtime() {
 const MIN = 650;
 const CAP = 2600;
 
-function Boot({ sceneReady, onDone }) {
+function Boot() {
   const [pct, setPct] = useState(0);
   const [done, setDone] = useState(false);
   const [gone, setGone] = useState(false);
@@ -49,6 +46,7 @@ function Boot({ sceneReady, onDone }) {
 
   useEffect(() => {
     const started = performance.now();
+    let alive = true;
     let value = 0;
 
     // Creep towards 90 so the bar always moves; real signals finish it.
@@ -58,29 +56,31 @@ function Boot({ sceneReady, onDone }) {
     }, 90);
 
     const finish = () => {
-      if (finished.current) return;
+      if (!alive || finished.current) return;
       finished.current = true;
       clearInterval(creep);
       setPct(100);
       const wait = Math.max(0, MIN - (performance.now() - started));
       setTimeout(() => {
         setDone(true);
-        onDone();
+        // The opening starts drawing as the overlay lifts.
+        dispatchEvent(new Event('boot:done'));
         // Remove it from the tree so nothing behind stays unreachable.
         setTimeout(() => setGone(true), 1000);
       }, wait);
     };
 
     const fonts = document.fonts?.ready ?? Promise.resolve();
-    const scene = new Promise((r) => {
-      if (sceneReady) r();
-      else window.addEventListener('scene:ready', r, { once: true });
-    });
+    // The scene is a later chunk, so this listener is always attached first.
+    const scene = new Promise((r) => addEventListener('scene:ready', r, { once: true }));
     const timeout = new Promise((r) => setTimeout(r, CAP));
 
     Promise.race([Promise.all([fonts, scene]), timeout]).then(finish).catch(finish);
-    return () => clearInterval(creep);
-  }, [sceneReady, onDone]);
+    return () => {
+      alive = false;
+      clearInterval(creep);
+    };
+  }, []);
 
   if (gone) return null;
 

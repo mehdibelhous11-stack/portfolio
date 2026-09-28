@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Mark from './Mark';
 import { sections, site } from '@/lib/content';
 import { onFrame, scrollState, scrollTo, lockScroll } from '@/lib/scroll';
+import { seq } from '@/lib/sequence';
 
 const pad = (n) => String(n).padStart(2, '0');
 const THEME_KEY = 'mb-theme';
@@ -20,16 +21,18 @@ export default function Nav() {
   const lastY = useRef(0);
   const opener = useRef(null);
 
-  /* Auto-hide going down, reveal going up, always show at the top. */
+  /* Auto-hide going down, reveal going up, always show at the top. No sheet
+     while the opening is pinned: there is no text under the bar to cover. */
   useEffect(() => {
     const el = bar.current;
     if (!el) return;
     return onFrame(() => {
       const y = scrollState.y;
       const down = y > lastY.current;
+      const opening = !seq.static && y < seq.start + seq.length;
       if (y < 80 || !down || open) el.removeAttribute('data-hidden');
       else if (down && y - lastY.current > 2) el.setAttribute('data-hidden', '');
-      el.toggleAttribute('data-top', y < 8 && !open);
+      el.toggleAttribute('data-top', (y < 8 || opening) && !open);
       lastY.current = y;
     });
   }, [open]);
