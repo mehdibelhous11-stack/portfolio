@@ -1,4 +1,5 @@
 import { Space_Grotesk } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import { site } from '@/lib/content';
 
 import '@/styles/tokens.css';
@@ -96,6 +97,7 @@ export default function RootLayout({ children }) {
           Aller au contenu
         </a>
         {children}
+        <Analytics />
       </body>
     </html>
   );
