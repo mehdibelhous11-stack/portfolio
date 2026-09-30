@@ -13,7 +13,6 @@
      is carried by weight, scale and hairline rules.                         */
   --void:   #0b0b0c;   /* page                                               */
   --void-1: #101012;   /* raised plane                                       */
-  --void-2: #17181a;   /* pressed / hovered plane                            */
   --ink:    #f5f5f4;   /* primary                                            */
   --ink-2:  #8f9196;   /* secondary                                          */
   --ink-3:  #5b5d63;   /* metadata                                           */
@@ -68,10 +67,8 @@
   /* ---- Structure ----------------------------------------------------------
      Radius 0 everywhere. The mark is straight edges only; the interface
      keeps that promise.                                                     */
-  --radius: 0px;
   --hairline: 1px;
   --max: 1360px;
-  --col: minmax(0, 1fr);
   --nav-h: 64px;
 
   /* ---- Motion — two curves, four durations ------------------------------- */
@@ -79,7 +76,6 @@
   --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
   --d-1: 140ms;  --d-2: 280ms;  --d-3: 560ms;  --d-4: 900ms;
 
-  --z-behind: 1;
   --z-canvas: 2;
   --z-content: 3;
   --z-index-overlay: 50;
@@ -93,7 +89,6 @@
   color-scheme: light;
   --void:   #f1f0ec;
   --void-1: #ffffff;
-  --void-2: #e6e5e0;
   --ink:    #0b0b0c;
   --ink-2:  #55585e;
   --ink-3:  #8a8d94;

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { startScroll, onFrame, pointer, scrollState, reducedMotion } from '@/lib/scroll';
+import { startScroll, onFrame, pointer, reducedMotion } from '@/lib/scroll';
 import Mark from './Mark';
 
 /* three.js is a client-only chunk fetched after the page is already readable.
@@ -227,5 +227,3 @@ export function useCue(ref) {
     };
   }, [ref]);
 }
-
-export { onFrame, scrollState, pointer };

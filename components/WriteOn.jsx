@@ -5,7 +5,7 @@ import { cloneElement, isValidElement } from 'react';
 const HOLD = { '.': 220, ',': 100, ':': 140, ';': 140, '—': 120, '?': 220, '!': 220 };
 
 /** How long the caret blinks at the end of a block that closes its section, ms. */
-export const WRITE_BLINK = 1700;
+const WRITE_BLINK = 1700;
 
 /** The text of a React tree — the copy assistive tech reads instead of the split one. */
 function plain(node) {
