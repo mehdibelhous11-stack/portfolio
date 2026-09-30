@@ -115,7 +115,7 @@ Or import the repo at [vercel.com/new](https://vercel.com/new) — the Next.js p
 
 ## Editing content
 
-Everything is in [`lib/content.js`](lib/content.js). The statement, the argument and the principles (`lead`, `approach`, `mantra`, `triad`) are placeholder lorem ipsum for now, the same length and shape as the final text; `site.role` stays real because the page title, the JSON-LD and the OG card read it. **Don't run `npm run assets` until the final wording is in** — the OG card is set from `lead.punch`.
+Everything is in [`lib/content.js`](lib/content.js). The statement, the argument and the principles (`lead`, `approach`, `mantra`, `triad`) are placeholder lorem ipsum for now, the same length and shape as the final text; `site.role` stays real because the page title and the JSON-LD read it. The OG card shows only the mark and `site.name`, so `npm run assets` is safe to run at any time.
 
 Projects carry two descriptions: `line` (one sentence, main page) and `long` (full detail, `/text`). Keep `line` to one idea — if it needs a second clause, it belongs in `long`. French typography: put a no-break space (` `) before `:` and inside `« »`, or the punctuation can wrap onto a line of its own.
 
@@ -166,5 +166,4 @@ node scripts/check.mjs ./shots http://localhost:3000/
 
 ## Known gaps
 
-- **Project imagery.** The four featured slots show placeholders until renders are added (see [Project visuals](#project-visuals)).
-- **Behance and YouTube** point at bare domains in `lib/content.js`.
+Tracked in [TODO.md](TODO.md), with what changed in [CHANGELOG.md](CHANGELOG.md).
