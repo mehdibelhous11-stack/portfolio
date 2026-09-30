@@ -111,7 +111,28 @@
   bottom: var(--s-6);
   opacity: 0;
 }
-.seq__hint { left: 50%; translate: -50% 0; }
+.seq__hint { left: 50%; translate: -50% 0; color: var(--ink-2); }
+/* The arrow hangs under the word, in the bottom margin, so the word stays on
+   the step's line. It drops and fades on a loop: the one thing moving on a
+   still first screen. */
+.seq__hint svg {
+  position: absolute;
+  top: calc(100% + var(--s-1));
+  left: 50%;
+  width: 12px;
+  height: 18px;
+  margin-left: -6px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linecap: square;
+  animation: hint-drop 1.8s var(--ease-io) infinite;
+}
+@keyframes hint-drop {
+  0% { opacity: 0; transform: translateY(-5px); }
+  35%, 65% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(6px); }
+}
 /* On the same line as the section rail below it. */
 .seq__step {
   left: max(var(--gutter), (100% - var(--max)) / 2 + var(--gutter));
@@ -131,6 +152,7 @@
   gap: var(--s-2);
   white-space: nowrap;
   opacity: 0;
+  transform-origin: 0 0;
   will-change: transform, opacity;
 }
 .callout__num { font-size: var(--t-label); color: var(--ink-3); font-variant-numeric: tabular-nums; }

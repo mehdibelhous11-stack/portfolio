@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { onFrame, pointer, scrollState, reducedMotion } from '@/lib/scroll';
 import { MARK_ASPECT } from '@/lib/mark';
-import { ANCHORS, ORDER, beat, clamp01, easeInOut, easeOut, lerp, seq, span } from '@/lib/sequence';
+import { ANCHORS, ORDER, TRIANGLE, beat, clamp01, easeInOut, easeOut, lerp, seq, span } from '@/lib/sequence';
 
 const token = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -233,19 +233,25 @@ export default function Scene() {
       resize();
       addEventListener('resize', resize, { passive: true });
 
-      const anchorsLocal = ANCHORS.map(([x, y]) => new THREE.Vector3((x - 50) / 84, (50 - y) / 84, FACE));
+      const onFace = ([x, y]) => new THREE.Vector3((x - 50) / 84, (50 - y) / 84, FACE);
+      const anchorsLocal = ANCHORS.map(onFace);
+      const cornersLocal = TRIANGLE.map(onFace);
       const v = new THREE.Vector3();
 
       const render = () => renderer.render(scene, camera);
 
-      /* Where the callouts' anchors are on screen, this frame. */
+      /* Where the callouts' anchors, and the pocket corners the words ride
+         until then, are on screen this frame. */
+      const project = (local, out) =>
+        local.forEach((a, i) => {
+          v.copy(a).applyMatrix4(rig.matrixWorld).project(camera);
+          out[i].x = (v.x + 1) * 0.5 * innerWidth;
+          out[i].y = (1 - v.y) * 0.5 * innerHeight;
+        });
       const publish = () => {
         rig.updateMatrixWorld();
-        anchorsLocal.forEach((a, i) => {
-          v.copy(a).applyMatrix4(rig.matrixWorld).project(camera);
-          seq.anchors[i].x = (v.x + 1) * 0.5 * innerWidth;
-          seq.anchors[i].y = (1 - v.y) * 0.5 * innerHeight;
-        });
+        project(anchorsLocal, seq.anchors);
+        project(cornersLocal, seq.corners);
         seq.anchorsLive = true;
       };
 

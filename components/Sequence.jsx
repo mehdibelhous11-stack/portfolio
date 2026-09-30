@@ -6,16 +6,18 @@ import { sequence, site } from '@/lib/content';
 import { onFrame, scrollState, reducedMotion } from '@/lib/scroll';
 import { MARK_HOLE, markOuterAt } from '@/lib/mark';
 import {
-  ANCHORS, CENTER, NOTE_LAYOUT, ORDER, RANGE, SEQ_SCREENS, TRIANGLE, ZOOM_START,
+  ANCHORS, CENTER, CORNER_NOTES, NOTE_LAYOUT, ORDER, RANGE, SEQ_SCREENS, TRIANGLE, ZOOM_START,
   beat, easeInOut, easeOut, framing, leanDeg, lerp, seq, span, stepProgress, toStage,
 } from '@/lib/sequence';
 
 const pad = (n) => String(n).padStart(2, '0');
 const f = (v) => v.toFixed(1);
 
-const PT = 5; //    sketch point, px
-const TAIL = 36; // level run of a leader before its word, px
-const GAP = 10; //  leader end to word, px
+const PT = 5; //     sketch point, px
+const TAIL = 36; //  level run of a leader before its word, px
+const GAP = 10; //   leader end to word, px
+const NEAR = 8; //   corner to word, px
+const APART = 12; // least space between the two words under the base, px
 
 const poly = (pts) => pts.map(([x, y]) => `${f(x)} ${f(y)}`).join('L');
 
@@ -93,19 +95,32 @@ export default function Sequence() {
     const leaders = all('leader');
     const anchors = all('anchor');
     const callouts = all('callout');
+    const nums = all('num');
+    const words = all('word');
 
     seq.static = reducedMotion();
     seq.intro = seq.static ? 1 : 0;
 
     let notes = [];
+    let margin = 20;
+    let box = [];
+    let small = 0.5; // a word at its corner, as a share of its callout size
     const measure = () => {
       seq.W = stage.clientWidth;
       seq.H = stage.clientHeight;
       seq.start = el.getBoundingClientRect().top + scrollY;
       seq.length = Math.max(1, el.offsetHeight - seq.H);
       seq.frame = framing(seq.W, seq.H);
+      // At its corner a word is set at label size, like a note on a drawing.
+      small = parseFloat(getComputedStyle(stepName).fontSize) / parseFloat(getComputedStyle(words[0]).fontSize);
+      box = callouts.map((c, i) => ({
+        w: c.offsetWidth,
+        h: c.offsetHeight,
+        wx: words[i].offsetLeft, // the number comes first
+        ww: words[i].offsetWidth,
+      }));
       // Keep every word on screen: same margin as the page gutter.
-      const margin = Math.min(56, Math.max(20, seq.W * 0.04));
+      margin = Math.min(56, Math.max(20, seq.W * 0.04));
       notes = NOTE_LAYOUT[seq.frame.narrow ? 'narrow' : 'wide'].map(({ at, dir }, i) => {
         let [x, y] = toStage(at);
         const w = callouts[i].offsetWidth;
@@ -211,24 +226,56 @@ export default function Sequence() {
       }
       put(step, 'opacity', (seq.static || since < 0 ? 0 : span(since, 0, 600)).toFixed(3));
 
-      // Annotate — each callout lands on the solid, or on the flat mark
-      // when there is no solid to pin it to.
+      // Words — each is set down small beside its corner of the triangle as
+      // the pen gets there, and rides that corner through the drawing, then
+      // on the solid. In the annotate beat it leaves the corner and lands as
+      // a callout, on the solid or on the flat mark when there is none:
+      // full size, numbered, its leader reaching it as it arrives.
       const live = seq.has3d && seq.anchorsLive;
       const fade = seq.static ? 1 : 1 - span(uH, 0.45, 1);
+      const starts = CORNER_NOTES.map(({ at, side }, i) => {
+        const c = live ? [seq.corners[at].x, seq.corners[at].y + seq.after] : triPx[at];
+        const w = box[i].ww * small;
+        const left = c[0] + side[0] * NEAR - (w * (1 - side[0])) / 2;
+        return {
+          left: Math.min(Math.max(left, margin), seq.W - margin - w),
+          top: c[1] + side[1] * NEAR - (box[i].h * small * (1 - side[1])) / 2,
+          w,
+        };
+      });
+      // The two words under the base run towards each other; on a narrow
+      // screen they would meet, so they part evenly.
+      const [l, r] = starts.filter((_, i) => CORNER_NOTES[i].side[1] > 0).sort((p, q) => p.left - q.left);
+      const meet = l.left + l.w + APART - r.left;
+      if (meet > 0) {
+        l.left -= meet / 2;
+        r.left += meet / 2;
+      }
+
       notes.forEach((n, i) => {
         const anchor = live ? [seq.anchors[i].x, seq.anchors[i].y + seq.after] : toStage(ANCHORS[i]);
-        const appear = seq.static ? 1 : easeOut(span(uA, i * 0.2, i * 0.2 + 0.5));
-        const word = span(appear, 0.45, 1);
+        const go = seq.static ? 1 : easeInOut(span(uA, i * 0.2, i * 0.2 + 0.5));
         let ex = n.x - n.dir * TAIL;
         if ((ex - anchor[0]) * n.dir < 0) ex = anchor[0];
-        put(leaders[i], 'd', trace([anchor, [ex, n.y], [n.x, n.y]], span(appear, 0, 0.7)));
+        put(leaders[i], 'd', trace([anchor, [ex, n.y], [n.x, n.y]], go));
         put(leaders[i], 'opacity', fade.toFixed(3));
         put(anchors[i], 'x', f(anchor[0] - 3.5));
         put(anchors[i], 'y', f(anchor[1] - 3.5));
-        put(anchors[i], 'opacity', (span(appear, 0, 0.12) * fade).toFixed(3));
-        const x = n.x + n.dir * (GAP + (1 - word) * 12);
-        put(callouts[i], 'transform', `translate3d(${f(x)}px, ${f(n.y)}px, 0) translate(${n.dir < 0 ? '-100%' : '0'}, -50%)`);
-        put(callouts[i], 'opacity', (word * fade).toFixed(3));
+        put(anchors[i], 'opacity', (span(go, 0, 0.1) * fade).toFixed(3));
+
+        // Scaled from its top-left corner: at its corner the word itself is
+        // placed (its number is not shown yet), at the end the whole callout.
+        const at = CORNER_NOTES[i].at;
+        const written = seq.static ? 1 : easeOut(span(pT, triAt[at] + 0.02, triAt[at] + 0.16));
+        const { w, h, wx } = box[i];
+        const x0 = starts[i].left - wx * small;
+        const y0 = starts[i].top + (1 - written) * 6;
+        const x1 = n.x + n.dir * GAP - (n.dir < 0 ? w : 0);
+        const y1 = n.y - h / 2;
+        const k = lerp(small, 1, go);
+        put(callouts[i], 'transform', `translate3d(${f(lerp(x0, x1, go))}px, ${f(lerp(y0, y1, go))}px, 0) scale(${k.toFixed(3)})`);
+        put(callouts[i], 'opacity', (written * fade).toFixed(3));
+        put(nums[i], 'opacity', span(go, 0.55, 1).toFixed(3));
       });
     };
 
@@ -275,6 +322,9 @@ export default function Sequence() {
         </div>
         <p className="seq__hint label" data-part="hint" aria-hidden="true">
           {sequence.hint}
+          <svg viewBox="0 0 12 18" focusable="false">
+            <path d="M6 1v15M1 11l5 5 5-5" />
+          </svg>
         </p>
         <p className="seq__step label" data-part="step" aria-hidden="true">
           <span data-part="stepNum">01</span>
@@ -294,10 +344,10 @@ export default function Sequence() {
         <ol className="seq__callouts">
           {sequence.callouts.map((word, i) => (
             <li className="callout" data-part="callout" key={word}>
-              <span className="callout__num" aria-hidden="true">
+              <span className="callout__num" data-part="num" aria-hidden="true">
                 {pad(i + 1)}
               </span>
-              <span className="callout__word">{word}</span>
+              <span className="callout__word" data-part="word">{word}</span>
             </li>
           ))}
         </ol>

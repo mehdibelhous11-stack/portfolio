@@ -72,17 +72,17 @@ The mark is built the way a part is built in CAD, scrubbed by scroll ([`lib/sequ
 
 | Beat | What happens |
 |---|---|
-| Esquisse | The triangle draws itself, apex first, as the boot overlay lifts. |
+| Esquisse | The triangle draws itself, apex first, as the boot overlay lifts. As the pen reaches each corner, a word is set down beside it at label size: *Forme* at the apex, *Fonction* and *Précision* under the base. A looping arrow under *Défiler* asks for the first scroll. |
 | Profil | The rectangle closes around it in two strokes from its foot; the closed profile is shaded, as CAD shades one that is ready to extrude. |
 | Inclinaison | The rectangle leans. A plumb line and a live readout count the angle to 22,4°; the dashed diagonal swings until it lands on the triangle's edge. |
-| Extrusion | The 3D plate takes over head-on, exactly on the sketch, then extrudes and turns; the sketch drops back behind it and the floor appears. |
-| Annotation | *Forme*, *Fonction*, *Précision* land on the solid half, the bar and the shared edge — pinned to the moving part, not to the screen. |
+| Extrusion | The 3D plate takes over head-on, exactly on the sketch, then extrudes and turns; the sketch drops back behind it and the floor appears. The words ride the pocket's corners on the solid. |
+| Annotation | Each word leaves its corner and grows into a callout — numbered, its leader reaching it as it lands on the solid half, the bar and the shared edge — pinned to the moving part, not to the screen. |
 
 **The triangle never changes.** The pocket already has its final shape, so the frame is what adapts: the upright rectangle on the same base leans until its left edge runs parallel to the triangle and its diagonal falls on the triangle's edge. That is the thread the rest of the page can pick up.
 
 **Layers.** The track is `SEQ_SCREENS + 1` screens tall with two pinned layers: the sketch paints *under* the WebGL canvas, so the solid covers the drawing it comes out of; the callouts paint *over* it. The track itself sets no z-index, or both layers would be trapped on one side of the canvas. After the last beat the stage unpins and the plate settles beside the statement, then retreats to a trace at the right edge.
 
-**Tuning.** Beat lengths (in screens of scroll) are `BEATS` in `lib/sequence.js`; where the words sit around the mark is `NOTE_LAYOUT` (field units, one layout for wide screens and one for phones, clamped so a word never leaves the screen); the words themselves are `sequence` in `lib/content.js`.
+**Tuning.** Beat lengths (in screens of scroll) are `BEATS` in `lib/sequence.js`; which corner each word starts at is `CORNER_NOTES`; where the words land around the mark is `NOTE_LAYOUT` (field units, one layout for wide screens and one for phones, clamped so a word never leaves the screen); the words themselves are `sequence` in `lib/content.js`.
 
 | Condition | The opening |
 |---|---|
