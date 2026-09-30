@@ -13,15 +13,13 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import sharp from 'sharp';
 import { MARK_PATH, MARK_VIEWBOX } from '../lib/mark.js';
-import { site, lead } from '../lib/content.js';
+import { site } from '../lib/content.js';
 
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 
 const VOID = '#0b0b0c';
 const INK = '#f5f5f4';
-const INK_2 = '#8f9196';
-const INK_3 = '#5b5d63';
 
 /** SVG is XML: an unescaped & in the role string is a parse error, not a glyph. */
 const xml = (s) =>
@@ -45,44 +43,29 @@ const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MARK_
 </svg>`;
 
 /**
- * 1200x630 social card. The statement leads, the mark carries the right
- * half, and the name sits small in the corner — the card follows the same
- * rule as the page: the position is the headline, the person the byline.
+ * 1200x630 social card: the mark and the name, centred, nothing else.
+ * Stacked rather than side by side, so a square crop of the card (small
+ * link previews) still holds both.
  */
 const ogHtml = `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=block">
 <style>
   * { margin: 0; box-sizing: border-box; }
   body { width: 1200px; height: 630px; background: ${VOID}; color: ${INK};
-         font-family: 'Space Grotesk', sans-serif; position: relative; overflow: hidden; }
-  .brand { position: absolute; left: 80px; top: 72px; display: flex; align-items: center; gap: 16px;
-           font-size: 24px; font-weight: 500; letter-spacing: -0.01em; }
-  .brand svg { width: 34px; height: 34px; }
-  h1 { position: absolute; left: 80px; top: 196px; font-size: 92px; font-weight: 500;
-       line-height: 1; letter-spacing: -0.04em; }
-  .role { position: absolute; left: 80px; top: 420px; font-size: 30px; color: ${INK_2}; letter-spacing: -0.01em; }
-  .foot { position: absolute; left: 80px; right: 80px; bottom: 64px; display: flex;
-          justify-content: space-between; font-size: 21px; color: ${INK_3}; }
-  .big { position: absolute; right: 36px; top: 112px; width: 360px; height: 360px; }
+         font-family: 'Space Grotesk', sans-serif; overflow: hidden;
+         display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; }
+  svg { width: 160px; height: 160px; }
+  h1 { font-size: 76px; font-weight: 500; line-height: 1; letter-spacing: -0.04em; }
 </style></head><body>
-  <div class="brand"><svg viewBox="0 0 100 100">${glyph(INK)}</svg>${xml(site.name)}</div>
-  <h1>${lead.punch.map(xml).join('<br>')}</h1>
-  <p class="role">${xml(site.role)}</p>
-  <svg class="big" viewBox="0 0 100 100">${glyph(INK)}</svg>
-  <div class="foot"><span>${xml(site.location)}</span><span>${xml(site.status)}</span></div>
+  <svg viewBox="0 0 100 100">${glyph(INK)}</svg>
+  <h1>${xml(site.name)}</h1>
 </body></html>`;
 
 /** Fallback card for machines without Chrome: same layout, system type. */
 const ogSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="${VOID}"/>
-  <g transform="translate(80,72) scale(0.34)">${glyph(INK)}</g>
-  <text x="130" y="97" fill="${INK}" font-family="Space Grotesk,Arial,sans-serif" font-size="24" font-weight="500">${xml(site.name)}</text>
-  <text x="80" y="280" fill="${INK}" font-family="Space Grotesk,Arial,sans-serif" font-size="92" font-weight="500" letter-spacing="-3.6">${xml(lead.punch[0])}</text>
-  <text x="80" y="372" fill="${INK}" font-family="Space Grotesk,Arial,sans-serif" font-size="92" font-weight="500" letter-spacing="-3.6">${xml(lead.punch[1])}</text>
-  <text x="80" y="450" fill="${INK_2}" font-family="Space Grotesk,Arial,sans-serif" font-size="30">${xml(site.role)}</text>
-  <g transform="translate(804,112) scale(3.6)">${glyph(INK)}</g>
-  <text x="80" y="566" fill="${INK_3}" font-family="Space Grotesk,Arial,sans-serif" font-size="21">${xml(site.location)}</text>
-  <text x="1120" y="566" fill="${INK_3}" font-family="Space Grotesk,Arial,sans-serif" font-size="21" text-anchor="end">${xml(site.status)}</text>
+  <g transform="translate(520,177) scale(1.6)">${glyph(INK)}</g>
+  <text x="600" y="437" fill="${INK}" font-family="Space Grotesk,Arial,sans-serif" font-size="76" font-weight="500" letter-spacing="-3" text-anchor="middle">${xml(site.name)}</text>
 </svg>`;
 
 /** @returns {Promise<Buffer|null>} null when Chrome or the font is unavailable */
@@ -104,7 +87,7 @@ async function renderOgInChrome() {
     await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 1 });
     await page.setContent(ogHtml, { waitUntil: 'networkidle0', timeout: 30000 });
     await page.evaluate(() => document.fonts.ready);
-    const loaded = await page.evaluate(() => document.fonts.check('500 92px "Space Grotesk"'));
+    const loaded = await page.evaluate(() => document.fonts.check('500 76px "Space Grotesk"'));
     return loaded ? Buffer.from(await page.screenshot({ type: 'png' })) : null;
   } catch {
     return null;
