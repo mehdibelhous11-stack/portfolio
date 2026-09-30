@@ -6,7 +6,7 @@ import { sequence, site } from '@/lib/content';
 import { onFrame, scrollState, reducedMotion } from '@/lib/scroll';
 import { MARK_HOLE, markOuterAt } from '@/lib/mark';
 import {
-  ANCHORS, CENTER, CORNER_NOTES, NOTE_LAYOUT, ORDER, RANGE, SEQ_SCREENS, TRIANGLE, ZOOM_START,
+  CENTER, CORNER_NOTES, NOTE_LAYOUT, ORDER, RANGE, SEQ_SCREENS, TRIANGLE, ZOOM_START,
   beat, easeInOut, easeOut, framing, leanDeg, lerp, seq, span, stepProgress, toStage,
 } from '@/lib/sequence';
 
@@ -229,12 +229,15 @@ export default function Sequence() {
       // Words — each is set down small beside its corner of the triangle as
       // the pen gets there, and rides that corner through the drawing, then
       // on the solid. In the annotate beat it leaves the corner and lands as
-      // a callout, on the solid or on the flat mark when there is none:
-      // full size, numbered, its leader reaching it as it arrives.
+      // a callout pointing back at it: full size, numbered, its leader drawn
+      // out of the corner once the word has cleared it. The corner is on the
+      // solid, or on the drawing when there is no solid to pin it to.
       const live = seq.has3d && seq.anchorsLive;
       const fade = seq.static ? 1 : 1 - span(uH, 0.45, 1);
-      const starts = CORNER_NOTES.map(({ at, side }, i) => {
-        const c = live ? [seq.corners[at].x, seq.corners[at].y + seq.after] : triPx[at];
+      const pins = CORNER_NOTES.map(({ at }, i) =>
+        live ? [seq.anchors[i].x, seq.anchors[i].y + seq.after] : triPx[at]);
+      const starts = CORNER_NOTES.map(({ side }, i) => {
+        const c = pins[i];
         const w = box[i].ww * small;
         const left = c[0] + side[0] * NEAR - (w * (1 - side[0])) / 2;
         return {
@@ -253,15 +256,19 @@ export default function Sequence() {
       }
 
       notes.forEach((n, i) => {
-        const anchor = live ? [seq.anchors[i].x, seq.anchors[i].y + seq.after] : toStage(ANCHORS[i]);
-        const go = seq.static ? 1 : easeInOut(span(uA, i * 0.2, i * 0.2 + 0.5));
+        const anchor = pins[i];
+        // This word's share of the beat: it travels first, and the leader
+        // starts from the corner as it nears its place, reaching it as it lands.
+        const u = seq.static ? 1 : span(uA, i * 0.2, i * 0.2 + 0.5);
+        const go = easeInOut(span(u, 0, 0.65));
+        const pull = easeInOut(span(u, 0.45, 1));
         let ex = n.x - n.dir * TAIL;
         if ((ex - anchor[0]) * n.dir < 0) ex = anchor[0];
-        put(leaders[i], 'd', trace([anchor, [ex, n.y], [n.x, n.y]], go));
+        put(leaders[i], 'd', trace([anchor, [ex, n.y], [n.x, n.y]], pull));
         put(leaders[i], 'opacity', fade.toFixed(3));
         put(anchors[i], 'x', f(anchor[0] - 3.5));
         put(anchors[i], 'y', f(anchor[1] - 3.5));
-        put(anchors[i], 'opacity', (span(go, 0, 0.1) * fade).toFixed(3));
+        put(anchors[i], 'opacity', (span(pull, 0, 0.1) * fade).toFixed(3));
 
         // Scaled from its top-left corner: at its corner the word itself is
         // placed (its number is not shown yet), at the end the whole callout.
