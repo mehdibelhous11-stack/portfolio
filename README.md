@@ -55,7 +55,7 @@ components/Runtime    rAF loop, boot, cursor, scene
 components/Scene      three.js, dynamically imported with ssr:false
 components/Sequence   the opening: pinned track, sketch, callouts
 components/Nav        bar + index overlay + theme toggle
-components/Sections   opening, intro, approche, principes, travaux, parcours, contact
+components/Sections   opening, intro, approche, principes, travaux, parcours, contact, closing
 lib/content.js        every word on the site
 lib/sequence.js       the opening's timeline, framing and shared state
 lib/scroll.js         shared rAF bus + Lenis; per-frame state lives outside React

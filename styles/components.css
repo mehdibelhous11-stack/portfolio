@@ -626,6 +626,20 @@ html:not([data-js]) .callout { position: static; opacity: 1; }
 .contact__link:hover .contact__value { color: var(--ink-2); }
 .contact__value svg { width: 11px; height: 11px; stroke: currentColor; stroke-width: 2; }
 
+/* ---- Closing ------------------------------------------------------------- */
+.closing {
+  position: relative;
+  z-index: var(--z-content);
+  padding-block: var(--s-10) var(--s-11);
+}
+.closing p {
+  font-size: var(--t-display);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+.closing p:last-child { color: var(--ink-3); }
+
 /* ---- Footer -------------------------------------------------------------- */
 .footer {
   position: relative;
