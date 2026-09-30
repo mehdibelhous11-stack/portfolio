@@ -72,7 +72,7 @@ The mark is built the way a part is built in CAD, scrubbed by scroll ([`lib/sequ
 
 | Beat | What happens |
 |---|---|
-| Esquisse | The triangle draws itself, apex first, as the boot overlay lifts. As the pen reaches each corner, a word is set down beside it at label size: *Forme* at the apex, *Fonction* and *Précision* under the base. A looping arrow under *Défiler* asks for the first scroll. |
+| Esquisse | The triangle draws itself, apex first, as the boot overlay lifts. As the pen reaches each corner, a word is set down beside it at label size: *Fonction* at the apex, *Forme* and *Précision* under the base. A looping arrow under *Défiler* asks for the first scroll. |
 | Profil | The rectangle closes around it in two strokes from its foot; the closed profile is shaded, as CAD shades one that is ready to extrude. |
 | Inclinaison | The rectangle leans. A plumb line and a live readout count the angle to 22,4°; the dashed diagonal swings until it lands on the triangle's edge. |
 | Extrusion | The 3D plate takes over head-on, exactly on the sketch, then extrudes and turns; the sketch drops back behind it and the floor appears. The words ride the pocket's corners on the solid. |
