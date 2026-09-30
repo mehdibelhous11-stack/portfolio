@@ -6,7 +6,7 @@ import { useCue } from './Runtime';
 import Sequence from './Sequence';
 import WriteOn from './WriteOn';
 import {
-  approach, closing, contact, lead, mantra, projects,
+  approach, contact, lead, mantra, projects,
   sections, site, studies, tools, track, triad,
 } from '@/lib/content';
 import { reducedMotion } from '@/lib/scroll';
@@ -35,7 +35,6 @@ export default function Sections() {
       <Travaux />
       <Parcours />
       <Contact />
-      <Closing />
     </main>
   );
 }
@@ -345,18 +344,5 @@ function Contact() {
         ))}
       </ul>
     </Section>
-  );
-}
-
-/* ---- Closing ------------------------------------------------------------- */
-function Closing() {
-  return (
-    <section className="closing shell" aria-label="Signature">
-      {closing.map((line, i) => (
-        <p className="cue" key={line} style={{ '--delay': `${i * 110}ms` }}>
-          {line}
-        </p>
-      ))}
-    </section>
   );
 }

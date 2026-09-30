@@ -26,7 +26,7 @@ Inspired by [Post Minimal](https://www.postminimal.agency/). What was taken from
 | Stacked mantra, formula triad | Four words stacked one per line, and three relations set as formulas — a name, then the two terms that make it — the pipeline stated as maths. |
 | A text version | [`/text`](app/text/page.js) carries every detail in full. The main page can stay short *because* recruiters have somewhere to read everything. |
 
-Not taken: their copy, their accent colour, the sound toggle and the timer. The closing line, **"Deux triangles. Une arête commune."**, describes the mark — so it is his, not borrowed.
+Not taken: their copy, their accent colour, the sound toggle and the timer.
 
 ## The mark
 
@@ -55,7 +55,7 @@ components/Runtime    rAF loop, boot, cursor, scene
 components/Scene      three.js, dynamically imported with ssr:false
 components/Sequence   the opening: pinned track, sketch, callouts
 components/Nav        bar + index overlay + theme toggle
-components/Sections   opening, intro, approche, principes, travaux, parcours, contact, closing
+components/Sections   opening, intro, approche, principes, travaux, parcours, contact
 lib/content.js        every word on the site
 lib/sequence.js       the opening's timeline, framing and shared state
 lib/scroll.js         shared rAF bus + Lenis; per-frame state lives outside React
