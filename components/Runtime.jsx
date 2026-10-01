@@ -97,7 +97,7 @@ function Boot() {
       <Mark className="mark boot__mark" />
       <div className="boot__rule" />
       <div className="boot__meta">
-        <span className="label">Belhous</span>
+        <span className="label">Lorem</span>
         <span className="label boot__count">{String(Math.round(pct)).padStart(3, '0')}</span>
       </div>
     </div>

@@ -8,6 +8,7 @@
 import puppeteer from 'puppeteer-core';
 import { mkdir } from 'node:fs/promises';
 import { RANGE } from '../lib/sequence.js';
+import { heroOnly } from '../lib/content.js';
 
 const OUT = process.argv[2];
 const URL = process.argv[3] || 'http://localhost:4173/';
@@ -45,6 +46,10 @@ const SHOTS = [
   { name: 'text-route', ...DESKTOP, path: 'text' },
 ];
 
+/* While the page is the hero alone (lib/content.js), everything below the
+   statement is masked: only the opening, the statement and /text are shot. */
+const shots = heroOnly ? SHOTS.filter((s) => !s.at || s.at === '.intro') : SHOTS;
+
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 await mkdir(OUT, { recursive: true });
@@ -70,7 +75,7 @@ const boot = async () => {
   await wait(2400);
 };
 
-for (const s of SHOTS) {
+for (const s of shots) {
   await page.setViewport({ width: s.w, height: s.h, deviceScaleFactor: 1, isMobile: !!s.mobile, hasTouch: !!s.mobile });
   await page.goto(new globalThis.URL(s.path || '', URL).href, { waitUntil: 'load', timeout: 45000 });
   if (!s.path) await boot();

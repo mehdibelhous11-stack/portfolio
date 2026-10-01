@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Mark from '@/components/Mark';
 import {
-  approach, byline, contact, lead, mantra, markNote, projects,
+  approach, byline, contact, credits, lead, mantra, markNote, projects,
   sequence, site, studies, tools, track, triad,
 } from '@/lib/content';
 
@@ -121,9 +121,7 @@ export default function TextVersion() {
       <h2>Colophon</h2>
       <p>{byline}</p>
       <p>{markNote}</p>
-      <p>
-        Composé en Space Grotesk. Site construit en Next.js, Three.js et CSS natif. © {site.year}.
-      </p>
+      <p>{credits}</p>
     </main>
   );
 }

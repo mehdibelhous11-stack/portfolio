@@ -115,7 +115,9 @@ Or import the repo at [vercel.com/new](https://vercel.com/new) — the Next.js p
 
 ## Editing content
 
-Everything is in [`lib/content.js`](lib/content.js). The statement, the argument and the principles (`lead`, `approach`, `mantra`, `triad`) are placeholder lorem ipsum for now, the same length and shape as the final text; `site.role` stays real because the page title and the JSON-LD read it. The OG card shows only the mark and `site.name`, so `npm run assets` is safe to run at any time.
+Everything is in [`lib/content.js`](lib/content.js). The statement, the argument and the principles (`lead`, `approach`, `mantra`, `triad`) are placeholder lorem ipsum for now, the same length and shape as the final text, and so are `site.status`, the byline and the colophon (`byline`, `markNote`, `credits`); `site.role` stays real because the page title and the JSON-LD read it. The OG card shows only the mark and `site.name`, so `npm run assets` is safe to run at any time.
+
+**For now the main page is the hero alone.** `heroOnly` in `lib/content.js` masks everything between the statement and the footer, and the index that lists it; the components stay in the code. Set it to `false` to bring them back. `/text` is unaffected.
 
 Projects carry two descriptions: `line` (one sentence, main page) and `long` (full detail, `/text`). Keep `line` to one idea — if it needs a second clause, it belongs in `long`. French typography: put a no-break space (` `) before `:` and inside `« »`, or the punctuation can wrap onto a line of its own.
 
@@ -157,7 +159,7 @@ env -u __NEXT_PRIVATE_STANDALONE_CONFIG -u NODE_ENV npx next build
 
 ### Visual checks
 
-`scripts/shoot.mjs` and `scripts/check.mjs` drive your installed Chrome over CDP. `shoot` captures every beat of the opening and every section at desktop and mobile widths; `check` exercises theme, index overlay, reduced motion, keyboard access and `/text`, and scrubs the opening to assert that the callouts land on screen, the words fit on a phone and the plate retreats to its trace. Run them against `npm start`:
+`scripts/shoot.mjs` and `scripts/check.mjs` drive your installed Chrome over CDP. `shoot` captures every beat of the opening and every section at desktop and mobile widths; `check` exercises theme, index overlay, reduced motion, keyboard access and `/text`, and scrubs the opening to assert that the callouts land on screen, the words fit on a phone and the plate retreats to its trace. While `heroOnly` is set, both skip what is masked, and `check` asserts it is gone instead. Run them against `npm start`:
 
 ```bash
 node scripts/shoot.mjs ./shots http://localhost:3000/

@@ -4,6 +4,12 @@ What comes next, and what is still open. At the end of a session, tick what is d
 
 ## Next sessions
 
+### 0. Unmask the page
+
+**Now (since 2026-10-01):** the main page is the hero alone. The sections below the statement and the index are masked by `heroOnly` in `lib/content.js`; the footer and `/text` stay.
+
+- [ ] Set `heroOnly` to `false` once the sections are ready to show.
+
 ### 1. The interactive experience
 
 **Now:** the opening is the only piece driven by scroll: sketch, profile, lean, extrusion, annotation (`lib/sequence.js`, `components/Sequence.jsx`, `components/Scene.jsx`). After it, the 3D plate settles beside the statement, then retreats to a faint trace at the right edge. Everything below is type revealed on scroll.
@@ -71,6 +77,8 @@ Decide before building:
 
 - [ ] `lead` (punch, tagline, problem, belief), `approach`, `mantra`, `triad`: lorem ipsum of the final length for now.
 - [ ] `closing`: placeholder text.
+- [ ] `site.status` (under the statement and on `/text`), `byline` (footer and `/text`), `markNote` and `credits` (the `/text` colophon): placeholder text since 2026-10-01.
+- [ ] The label on the loading screen, in `components/Runtime.jsx`: placeholder text since 2026-10-01.
 - [ ] `contact`: the email and phone are placeholders, repeated in the JSON-LD in `app/layout.js`. Behance and YouTube point at bare domains.
 
 ## Site

@@ -6,7 +6,7 @@ import { useCue } from './Runtime';
 import Sequence from './Sequence';
 import WriteOn from './WriteOn';
 import {
-  approach, closing, contact, lead, mantra, projects,
+  approach, closing, contact, heroOnly, lead, mantra, projects,
   sections, site, studies, tools, track, triad,
 } from '@/lib/content';
 import { reducedMotion } from '@/lib/scroll';
@@ -30,12 +30,17 @@ export default function Sections() {
     <main id="main" ref={root}>
       <Sequence />
       <Intro />
-      <Approche />
-      <Principes />
-      <Travaux />
-      <Parcours />
-      <Contact />
-      <Closing />
+      {/* Masked for now: the page is the hero alone (lib/content.js). */}
+      {!heroOnly && (
+        <>
+          <Approche />
+          <Principes />
+          <Travaux />
+          <Parcours />
+          <Contact />
+          <Closing />
+        </>
+      )}
     </main>
   );
 }

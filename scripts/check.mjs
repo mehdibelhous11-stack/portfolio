@@ -8,6 +8,7 @@
 import puppeteer from 'puppeteer-core';
 import { mkdir } from 'node:fs/promises';
 import { RANGE } from '../lib/sequence.js';
+import { heroOnly } from '../lib/content.js';
 
 const OUT = process.argv[2];
 const URL = process.argv[3] || 'http://localhost:4173/';
@@ -58,8 +59,27 @@ const INDEX = 'button[aria-controls="index"]';
   await page.close();
 }
 
-/* ---- 2. Index overlay (desktop and mobile share it) ---------------------- */
-for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844, isMobile: true, hasTouch: true }]) {
+/* ---- 2. Index overlay (desktop and mobile share it) ----------------------
+   While the page is the hero alone (`heroOnly`, lib/content.js) the index
+   is masked with the sections it lists: check instead that both are gone,
+   and that the page ends on the statement with the plate beside it. */
+if (heroOnly) {
+  const page = await open({ width: 1440, height: 900 });
+  await page.evaluate(() => scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+  await settle();
+  results.push({
+    test: 'hero only',
+    ...(await page.evaluate(() => ({
+      sections: [...document.querySelectorAll('main > section')].map((s) => s.id || s.classList[0]),
+      index: !!document.getElementById('index') || !!document.querySelector('button[aria-controls="index"]'),
+      footer: !!document.querySelector('.footer'),
+      canvasAtEnd: +(document.querySelector('canvas.scene')?.style.opacity ?? 0),
+    }))),
+  });
+  await page.close();
+}
+
+for (const vp of heroOnly ? [] : [{ width: 1440, height: 900 }, { width: 390, height: 844, isMobile: true, hasTouch: true }]) {
   const page = await open(vp);
   const tag = vp.width < 800 ? 'mobile' : 'desktop';
   await page.click(INDEX);
@@ -150,19 +170,23 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844, isMob
   const notes = await state();
   await page.screenshot({ path: `${OUT}/opening-notes.png` });
   // Past the pinned track and a screen and a half beyond: a trace at the edge.
-  await page.evaluate(() => {
-    const el = document.getElementById('top');
-    scrollTo({ top: el.offsetTop + el.offsetHeight + innerHeight * 0.7, behavior: 'instant' });
-  });
-  await settle(2600);
-  const beyond = await state();
+  // The hero alone ends before that (see "hero only").
+  let beyond = null;
+  if (!heroOnly) {
+    await page.evaluate(() => {
+      const el = document.getElementById('top');
+      scrollTo({ top: el.offsetTop + el.offsetHeight + innerHeight * 0.7, behavior: 'instant' });
+    });
+    await settle(2600);
+    beyond = await state();
+  }
   await scrub(0);
   const back = await state();
   results.push({
     test: 'opening',
     start: { canvas: start.canvas, triangle: start.triangle, step: start.step },
     notes: { canvas: notes.canvas, sketch: notes.sketch, callouts: notes.callouts, leaders: notes.leaders, anchorsOnScreen: notes.anchorsOnScreen, wordsInside: notes.wordsInside, step: notes.step },
-    beyond: { canvas: beyond.canvas },
+    beyond: beyond && { canvas: beyond.canvas },
     backToStart: { canvas: back.canvas, sketch: back.sketch, step: back.step },
   });
 
@@ -182,7 +206,7 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844, isMob
    readers get must be the same text as the one on screen. */
 {
   const page = await open({ width: 1440, height: 900 });
-  for (const sel of ['.intro', '#approche', '#principes']) {
+  for (const sel of heroOnly ? ['.intro'] : ['.intro', '#approche', '#principes']) {
     await page.evaluate((s) => document.querySelector(s).scrollIntoView(), sel);
     await settle(1200);
   }

@@ -2,6 +2,17 @@
 
 Notable changes to the site, newest first. A date is the day the change reached `main`, which Vercel deploys. The commit history has the detail.
 
+## 2026-10-01
+
+### Main page
+- For now the page is the hero alone: the opening and the statement, then the footer. The sections below the statement (Approche, Principes, Travaux, Parcours, Contact and the closing) are masked, not deleted, and so is the index that lists them. `heroOnly` in `lib/content.js` brings them back. `/text` still has everything.
+
+### Content
+- Placeholder text in place of the status under the statement (also on `/text`), the label on the loading screen, the byline (footer and `/text`) and the rest of the `/text` colophon. The colophon's last line moved from `app/text/page.js` into `lib/content.js` as `credits`.
+
+### Checks
+- `scripts/shoot.mjs` and `scripts/check.mjs` read `heroOnly`: while it is set they skip what is masked, and `check` asserts it is gone instead.
+
 ## 2026-09-30
 
 ### Opening

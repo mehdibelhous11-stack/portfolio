@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Mark from './Mark';
-import { sections, site } from '@/lib/content';
+import { heroOnly, sections, site } from '@/lib/content';
 import { onFrame, scrollState, scrollTo, lockScroll } from '@/lib/scroll';
 import { seq } from '@/lib/sequence';
 
@@ -74,50 +74,55 @@ export default function Nav() {
 
           <div className="nav__tools">
             <ThemeToggle />
-            <button
-              className="pill"
-              type="button"
-              ref={opener}
-              aria-expanded={open}
-              aria-controls="index"
-              onClick={() => setIndex(!open)}
-            >
-              {open ? 'Fermer' : 'Index'}
-            </button>
+            {/* No index while the sections it lists are masked (lib/content.js). */}
+            {!heroOnly && (
+              <button
+                className="pill"
+                type="button"
+                ref={opener}
+                aria-expanded={open}
+                aria-controls="index"
+                onClick={() => setIndex(!open)}
+              >
+                {open ? 'Fermer' : 'Index'}
+              </button>
+            )}
           </div>
         </div>
       </header>
 
-      <nav
-        className="index"
-        id="index"
-        aria-label="Index"
-        aria-hidden={!open}
-        data-open={open ? '' : undefined}
-        inert={!open}
-      >
-        <div className="shell index__links">
-          {sections.map((s, i) => (
-            <a
-              className="index__link"
-              key={s.id}
-              href={`#${s.id}`}
-              style={{ '--i': i }}
-              onClick={(e) => go(e, s.id)}
-            >
-              <span className="index__num">{pad(i + 1)}</span>
-              {s.label}
-            </a>
-          ))}
-        </div>
-        <div className="shell index__foot">
-          <Link className="label" href="/text">
-            Version texte
-          </Link>
-          <span className="label">{site.location}</span>
-          <span className="label">{site.year}</span>
-        </div>
-      </nav>
+      {!heroOnly && (
+        <nav
+          className="index"
+          id="index"
+          aria-label="Index"
+          aria-hidden={!open}
+          data-open={open ? '' : undefined}
+          inert={!open}
+        >
+          <div className="shell index__links">
+            {sections.map((s, i) => (
+              <a
+                className="index__link"
+                key={s.id}
+                href={`#${s.id}`}
+                style={{ '--i': i }}
+                onClick={(e) => go(e, s.id)}
+              >
+                <span className="index__num">{pad(i + 1)}</span>
+                {s.label}
+              </a>
+            ))}
+          </div>
+          <div className="shell index__foot">
+            <Link className="label" href="/text">
+              Version texte
+            </Link>
+            <span className="label">{site.location}</span>
+            <span className="label">{site.year}</span>
+          </div>
+        </nav>
+      )}
     </>
   );
 }
